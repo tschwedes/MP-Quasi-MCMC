@@ -10,7 +10,8 @@ Created on Wed Sep 26 15:25:19 2018
 Script to analyse the convergence in Empirical Variance and Squared Bias
 (as well as combined = MSE) for importance sampling MP-MCMC driven by a
 IID seed VS. by a CUD seed. The underlying sampling method makes use of
-Riemannian manifold Metropolis-Adjunsted Langevin proposals.
+Riemannian manifold Metropolis-Adjunsted Langevin proposals!
+
 """
 
 
@@ -295,14 +296,15 @@ if __name__ == '__main__':
     fig, ax1 = plt.subplots()
     fig.tight_layout()
     
-    ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
-                yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
-                markersize=3, label = 'PSR',elinewidth = 1, capsize = 3, \
-                )
     ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
                 yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
                 markersize=3, label = 'QMC',elinewidth = 1, capsize = 3, \
-                )
+                color='darkblue')    
+    
+    ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+                yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+                markersize=3, label = 'PSR',elinewidth = 1, capsize = 3, \
+                color='darkred')
 
     ax1.errorbar(N_Array, .1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
@@ -319,6 +321,7 @@ if __name__ == '__main__':
     ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000]))
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
+    ax1.grid(True,which="both")
 
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
@@ -346,27 +349,26 @@ if __name__ == '__main__':
     # Fancier plots
     fig, ax1 = plt.subplots()
     fig.tight_layout()
-
-    ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
-                yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='-o', \
-                markersize=3, label = 'Var (PSR)',elinewidth = 1, capsize = 3, \
-                )
-    ax1.errorbar(N_Array, PSR_EstimAverageSquareBiasTrace, \
-#                yerr=1*np.sqrt(PSR_BiasBatchSquareMeanTraceVar), 
-                fmt='-.', \
-                markersize=3, label = r'$Bias^2$ (PSR)',elinewidth = 1, capsize = 3, \
-                )   
-    
     
     ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
                 yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='--o', \
                 markersize=3, label = 'Var (QMC)',elinewidth = 1, capsize = 3, \
-                )
+                color='darkblue')
     ax1.errorbar(N_Array, QMC_EstimAverageSquareBiasTrace, fmt=':', \
 #                yerr=1*np.sqrt(QMC_BiasBatchSquareMeanTraceVar),              
                 markersize=3, label = r'$Bias^2$ (QMC)',elinewidth = 1, capsize = 3, \
-                )    
+                color='blue')  
     
+    ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+                yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='-o', \
+                markersize=3, label = 'Var (PSR)',elinewidth = 1, capsize = 3, \
+                color='darkred')
+    ax1.errorbar(N_Array, PSR_EstimAverageSquareBiasTrace, \
+#                yerr=1*np.sqrt(PSR_BiasBatchSquareMeanTraceVar), 
+                fmt='-.', \
+                markersize=3, label = r'$Bias^2$ (PSR)',elinewidth = 1, capsize = 3, \
+                color='red')   
+
     ax1.errorbar(N_Array, 0.6*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
     ax1.errorbar(N_Array, 0.6*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
@@ -382,6 +384,7 @@ if __name__ == '__main__':
     ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000]))
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=9.)
+    ax1.grid(True,which="both")
 
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
@@ -409,18 +412,17 @@ if __name__ == '__main__':
     fig, ax1 = plt.subplots()
     fig.tight_layout()
 
-    ax1.errorbar(N_Array, PSR_EstimAverageSquareBiasTrace, \
-#                yerr=1*np.sqrt(PSR_BiasBatchSquareMeanTraceVar), 
-                fmt='--o', \
-                markersize=3, label = r'PSR', elinewidth = 1, capsize = 3, \
-                )   
-    
     ax1.errorbar(N_Array, QMC_EstimAverageSquareBiasTrace, \
 #                yerr=1*np.sqrt(PSR_BiasBatchSquareMeanTraceVar), 
                 fmt='-o', \
                 markersize=3, label = r'QMC', elinewidth = 1, capsize = 3, \
-                )   
+                color='darkblue')   
 
+    ax1.errorbar(N_Array, PSR_EstimAverageSquareBiasTrace, \
+#                yerr=1*np.sqrt(PSR_BiasBatchSquareMeanTraceVar), 
+                fmt='--o', \
+                markersize=3, label = r'PSR', elinewidth = 1, capsize = 3, \
+                color='darkred')   
 
     ax1.errorbar(N_Array, 0.25*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
@@ -437,6 +439,7 @@ if __name__ == '__main__':
     ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100]
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
+    ax1.grid(True,which="both")
 
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
@@ -467,11 +470,11 @@ if __name__ == '__main__':
     ax1.errorbar(N_Array, QMC_MSE_Trace, fmt='-o',\
 #                yerr=3*np.sqrt(QMC_BatchMSE_TraceVar), fmt='-o', \
                 markersize=3, label = 'QMC',elinewidth = 1, capsize = 3, \
-                )#color = '0.25')
+                color = 'darkblue')
     ax1.errorbar(N_Array, PSR_MSE_Trace, fmt='--o', \
 #                yerr=3*np.sqrt(PSR_BatchMSE_TraceVar), fmt='-o', \
                 markersize=3, label = 'PSR',elinewidth = 1, capsize = 3, \
-                )#color = '0.25')
+                color = 'darkred')
 
     ax1.errorbar(N_Array, 0.3*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
@@ -488,7 +491,8 @@ if __name__ == '__main__':
     ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100]
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
-
+    ax1.grid(True,which="both")
+        
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
     ax2.set_yscale("log")
