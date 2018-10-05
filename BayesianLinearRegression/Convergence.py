@@ -48,12 +48,12 @@ if __name__ == '__main__':
     # Generate Data #
     #################
 
-    alpha       = 0.5
-    d           = 10
-    Data        = DataGen(alpha, d)
-    X           = Data.DesignMatrix()
-    obs         = Data.Observations()
-    n_samples   = Data.NumOfSamples()
+    alpha           = 0.5
+    d               = 10
+    Data            = DataGen(alpha, d)
+    X               = Data.GetDesignMatrix()
+    Obs             = Data.GetObservations()
+    NumOfSamples    = Data.GetNumOfSamples()
     
     
     #############################
@@ -78,14 +78,14 @@ if __name__ == '__main__':
     ###########################################
     
     # Compute covariance of g-prior
-    g = 1./n_samples
+    g = 1./NumOfSamples
     sigmaSq = 1./alpha
     G_prior = sigmaSq / g * np.linalg.inv(np.dot(X.T,X))
     InvG_prior = np.linalg.inv(G_prior)
     Lambda0 = sigmaSq * InvG_prior
     
     # Gaussian approximations for independent sampler
-    PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,obs))
+    PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,Obs))
     PostCov = sigmaSq*np.linalg.pinv(np.dot(X.T,X) + Lambda0)      
     
     # Fisher Information as constant metric tensor
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     # Define posterior derivative
     def PostDeriv(z):
-        Val = -np.dot(InvG_prior,z) + alpha * np.dot(X.T, (obs - np.dot(X, z)))
+        Val = -np.dot(InvG_prior,z) + alpha * np.dot(X.T, (Obs - np.dot(X, z)))
         return Val
     
     # Compute root
@@ -157,21 +157,21 @@ if __name__ == '__main__':
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             
             # Acceptance rate of MP-(Q)MCMC
-            QMC_AcceptRate = QMC_BLR.AcceptRate(BurnIn)
+            QMC_AcceptRate = QMC_BLR.GetAcceptRate(BurnIn)
             print ("QMC Acceptance Rate = ", QMC_AcceptRate)
-            PSR_AcceptRate = PSR_BLR.AcceptRate(BurnIn)
+            PSR_AcceptRate = PSR_BLR.GetAcceptRate(BurnIn)
             print ("PSR Acceptance Rate = ", PSR_AcceptRate)
 
 
             ################## QMC #####################
 
             # Compute estimated IS mean
-            QMC_EstimArray[p,j,:] = QMC_BLR.IS_MeanEstimate(N, BurnIn)
+            QMC_EstimArray[p,j,:] = QMC_BLR.GetIS_MeanEstimate(N, BurnIn)
 
             ################## PSR #####################
 
             # Compute estimated IS mean
-            PSR_EstimArray[p,j,:] = PSR_BLR.IS_MeanEstimate(N, BurnIn)
+            PSR_EstimArray[p,j,:] = PSR_BLR.GetIS_MeanEstimate(N, BurnIn)
 
 
     ###############################

@@ -25,32 +25,26 @@ class BayesianLinReg:
         Data set "Data.txt" by using multiple proposal quasi MCMC with 
         Importance Sampling (IS-MP-QMCMC)
     
-        inputs:
+        Inputs:
         -------   
         d               - Integer; dimension of posterior    
-        alpha           - Standard deviation for observation noise
+        alpha           - Standard deviation for Observation noise
         x0              - D-dimensional array; starting value
         N               - Integer; number of proposals per iteration
         StepSize        - Float; step size for proposed jump in mean
         CovScaling      - Float; scaling of proposal covariance
         PowerOfTwo      - Defines size S of seed by S=2**PowerOfTwo-1
-        stream          - String; either 'cud' or 'iid'; defining what seed is used
-    
-        outputs:
-        ------- 
-        xVals        - Array of sample values
-        AcceptVals   - Array of acceptance probabilities
-        WeightedSum  - Array of sum of weighted samples from every iteration
+        Stream          - String; either 'cud' or 'iid'; defining what seed is used
         """
     
         #################
         # Generate Data #
         #################
         
-        Data        = DataGen(alpha, d)
-        X           = Data.DesignMatrix()
-        obs         = Data.Observations()
-        n_samples   = Data.NumOfSamples()
+        Data            = DataGen(alpha, d)
+        X               = Data.GetDesignMatrix()
+        Obs             = Data.GetObservations()
+        NumOfSamples    = Data.GetNumOfSamples()
         
         ##################################
         # Choose stream for Markoc Chain #
@@ -63,7 +57,7 @@ class BayesianLinReg:
         ###########################################
         
         # Compute covariance of g-prior
-        g = 1./n_samples
+        g = 1./NumOfSamples
         sigmaSq = 1./alpha
         G_prior = sigmaSq / g * np.linalg.inv(np.dot(X.T,X))
         InvG_prior = np.linalg.inv(G_prior)
@@ -110,7 +104,7 @@ class BayesianLinReg:
             U = xs[n*(N+1):(n+1)*(N+1),:]
     
             # Compute proposal mean according to Langevin
-            GradLog_xI = -np.dot(InvG_prior,xI) + alpha * np.dot(X.T, (obs - np.dot(X, xI)))
+            GradLog_xI = -np.dot(InvG_prior,xI) + alpha * np.dot(X.T, (Obs - np.dot(X, xI)))
             Mean_xI = xI + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_xI)
                 
             # Generate auxiliary proposal state according to MALA 
@@ -119,7 +113,7 @@ class BayesianLinReg:
                                np.linalg.cholesky(CovScaling**2*InvFisherInfo).T)
     
             # Compute mean of auxiliary proposal state according to MALA
-            GradLog_z = -np.dot(InvG_prior,z) + alpha * np.dot(X.T, (obs - np.dot(X, z)))
+            GradLog_z = -np.dot(InvG_prior,z) + alpha * np.dot(X.T, (Obs - np.dot(X, z)))
             Mean_z = z + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_z)
     
             # Generate proposals via inverse CDF transformation
@@ -137,12 +131,12 @@ class BayesianLinReg:
             # Compute Log-posterior probabilities
             LogPriors = -0.5*np.dot(np.dot(Proposals, InvG_prior), Proposals.T).diagonal(0) # Zellner's g-prior
             fs = np.dot(X,Proposals.T)
-            LogLikelihoods  = -0.5*alpha*np.dot(obs-fs.T, (obs-fs.T).T).diagonal(0)
+            LogLikelihoods  = -0.5*alpha*np.dot(Obs-fs.T, (Obs-fs.T).T).diagonal(0)
             LogPosteriors   = LogPriors + LogLikelihoods
     
             # Compute Log of transition probabilities
             GradLog_states = - np.dot(InvG_prior,Proposals.T) \
-                             + alpha * np.dot(X.T, (obs - np.dot(X, Proposals.T).T).T)
+                             + alpha * np.dot(X.T, (Obs - np.dot(X, Proposals.T).T).T)
             Mean_Proposals = Proposals + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_states).T
             LogKiz = -0.5*np.dot(np.dot(Mean_Proposals-z, FisherInfo/(CovScaling**2)), \
                                  (Mean_Proposals - z).T).diagonal(0) # from any state to z
@@ -185,7 +179,7 @@ class BayesianLinReg:
             xI = Proposals[I,:]
     
     
-    def Samples(self, BurnIn=0):
+    def GetSamples(self, BurnIn=0):
         
         """
         Compute samples from posterior from MP-QMCMC
@@ -204,7 +198,7 @@ class BayesianLinReg:
         return Samples
        
         
-    def AcceptRate(self, BurnIn=0):
+    def GetAcceptRate(self, BurnIn=0):
         
         """
         Compute acceptance rate of MP-QMCMC
@@ -224,7 +218,7 @@ class BayesianLinReg:
         return AcceptRate
 
      
-    def IS_MeanEstimate(self, N, BurnIn=0):
+    def GetIS_MeanEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling estimate
@@ -240,7 +234,7 @@ class BayesianLinReg:
         return WeightedMean
   
       
-    def MarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
+    def GetMarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
         
         """
         Plot histogram of marginal distribution for posterior samples using 
@@ -258,7 +252,7 @@ class BayesianLinReg:
 
         Fig = plt.figure()
         SubPlot = Fig.add_subplot(111)
-        SubPlot.hist(self.Samples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
+        SubPlot.hist(self.GetSamples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
         
         return Fig
 

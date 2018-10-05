@@ -35,17 +35,17 @@ class DataGen:
         
         np.random.seed()  
 
-    def NumOfSamples(self):
+    def GetNumOfSamples(self):
         return self.n_samples
     
-    def Weights(self):
+    def GetWeights(self):
         return self.w
 
-    def Noise(self):
+    def GetNoise(self):
         return self.noise
 
-    def Observations(self):
+    def GetObservations(self):
         return self.obs
 
-    def DesignMatrix(self):
+    def GetDesignMatrix(self):
         return self.X

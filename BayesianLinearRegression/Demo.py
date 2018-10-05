@@ -16,14 +16,14 @@ if __name__ == '__main__':
     # Parameters for simulation #
     #############################
     
-    d = 3                   # Dimension of posterior
-    alpha = 0.5             # Standard deviation of observation noise
-    x0 = np.zeros(d)        # Starting value
-    N = 1024                # Number of proposed states
-    StepSize = np.sqrt(2)   # Proposal step size
-    CovScaling = 1.         # Proposal covariance scaling
-    PowerOfTwo = 15         # generates size of seed = 2**PowerOfTwo-1
-    Stream = 'cud'          # choose between 'iid' or 'cud' seed
+    d           = 3                 # Dimension of posterior
+    alpha       = 0.5               # Standard deviation of observation noise
+    x0          = np.zeros(d)       # Starting value
+    N           = 1024              # Number of proposed states
+    StepSize    = np.sqrt(2)        # Proposal step size
+    CovScaling  = 1.                # Proposal covariance scaling
+    PowerOfTwo  = 15                # generates size of seed = 2**PowerOfTwo-1
+    Stream      = 'cud'             # choose between 'iid' or 'cud' seed
     
     # Define optional Burn-In
     BurnIn = 0
@@ -50,18 +50,18 @@ if __name__ == '__main__':
     ###################
 
     # Samples
-    Samples = BLR.Samples(BurnIn)
+    Samples = BLR.GetSamples(BurnIn)
 
     # Plot marginal PDF histogram in Index-th coordinate
     Index = 0
     BarNum = 100
-    BLR.MarginalHistogram(Index=0, BarNum=100, BurnIn=0)
+    BLR.GetMarginalHistogram(Index=0, BarNum=100, BurnIn=0)
     
 
     # IS estimate for posterior mean as approximate posterior mean
-    ApprPostMean = BLR.IS_MeanEstimate(N, BurnIn)
+    ApprPostMean = BLR.GetIS_MeanEstimate(N, BurnIn)
     print ("IS posterior mean estimate = ", ApprPostMean)
 
     # Compute average acceptance rate 
-    AcceptRate = BLR.AcceptRate(BurnIn)
+    AcceptRate = BLR.GetAcceptRate(BurnIn)
     print ("Acceptance rate = ", AcceptRate)
