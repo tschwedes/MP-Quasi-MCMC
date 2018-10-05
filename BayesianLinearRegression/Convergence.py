@@ -207,11 +207,11 @@ if __name__ == '__main__':
     ##################################
 
     # Error bar estimate for empirical variance estimates
-    BatchSize = 5.
-    QMC_EstimBatches            = np.array(np.array_split(QMC_EstimArray, BatchSize, axis=1))
+    NumOfBatches = 5.
+    QMC_EstimBatches            = np.array(np.array_split(QMC_EstimArray, NumOfBatches, axis=1))
     QMC_EstimBatchVar           = np.var(QMC_EstimBatches, axis=2)
     QMC_EstimBatchVarTrace      = np.sum(QMC_EstimBatchVar, axis=2)
-    QMC_VarEstimBatchVarTrace   = np.var(QMC_EstimBatchVarTrace, axis=0)/BatchSize
+    QMC_VarEstimBatchVarTrace   = np.var(QMC_EstimBatchVarTrace, axis=0)/NumOfBatches
     
     
     ######################################
@@ -222,10 +222,10 @@ if __name__ == '__main__':
     ######################################
 
     # Error bar estimator for empirical variance estimates here
-    QMC_BiasBatches = np.array(np.array_split(QMC_EstimArray-PostMean, BatchSize, axis=1))
+    QMC_BiasBatches = np.array(np.array_split(QMC_EstimArray-PostMean, NumOfBatches, axis=1))
     QMC_BiasBatchSquareMean = np.mean(QMC_BiasBatches, axis=2)**2
     QMC_BiasBatchSquareMeanTrace = np.sum(QMC_BiasBatchSquareMean, axis=2)
-    QMC_BiasBatchSquareMeanTraceVar = np.var(QMC_BiasBatchSquareMeanTrace, axis=0) /BatchSize
+    QMC_BiasBatchSquareMeanTraceVar = np.var(QMC_BiasBatchSquareMeanTrace, axis=0) /NumOfBatches
 
     #######################
     ### MSE COMPUTATION ###
@@ -248,11 +248,11 @@ if __name__ == '__main__':
     ##################################
 
     # Error bar estimate for empirical variance estimates
-    BatchSize = 5.
-    PSR_EstimBatches            = np.array(np.array_split(PSR_EstimArray, BatchSize, axis=1))
+    NumOfBatches = 5.
+    PSR_EstimBatches            = np.array(np.array_split(PSR_EstimArray, NumOfBatches, axis=1))
     PSR_EstimBatchVar           = np.var(PSR_EstimBatches, axis=2)
     PSR_EstimBatchVarTrace      = np.sum(PSR_EstimBatchVar, axis=2)
-    PSR_VarEstimBatchVarTrace   = np.var(PSR_EstimBatchVarTrace, axis=0)/BatchSize
+    PSR_VarEstimBatchVarTrace   = np.var(PSR_EstimBatchVarTrace, axis=0)/NumOfBatches
 
     ######################################
     # VARIANCE of Empirical squared bias #
@@ -262,10 +262,10 @@ if __name__ == '__main__':
     ######################################
 
     # Error bar estimator for empirical variance estimates here
-    PSR_BiasBatches = np.array(np.array_split(PSR_EstimArray-PostMean, BatchSize, axis=1))
+    PSR_BiasBatches = np.array(np.array_split(PSR_EstimArray-PostMean, NumOfBatches, axis=1))
     PSR_BiasBatchSquareMean = np.mean(PSR_BiasBatches, axis=2)**2
     PSR_BiasBatchSquareMeanTrace = np.sum(PSR_BiasBatchSquareMean, axis=2)
-    PSR_BiasBatchSquareMeanTraceVar = np.var(PSR_BiasBatchSquareMeanTrace, axis=0) /BatchSize
+    PSR_BiasBatchSquareMeanTraceVar = np.var(PSR_BiasBatchSquareMeanTrace, axis=0) /NumOfBatches
 
 
     #######################
