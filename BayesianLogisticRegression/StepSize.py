@@ -28,10 +28,19 @@ if __name__ == '__main__':
     # Parameters for simulation #
     #############################
     
-    Range = np.linspace(1.0, 1.3, 13) # Range of step sizes
-    Cases = ['ripley' , 'pima', 'heart', 'australian', 'german']
-    EssMeans = np.zeros((len(Range), len(Cases))) # Means of ESS 
-        
+    Range       = np.linspace(1.0, 1.3, 13) # Range of step sizes
+    Cases       = ['ripley' , 'pima', 'heart', 'australian', 'german']
+    N           = 4              # Number of proposed states
+    PowerOfTwo  = 15             # Generates size of seed = 2**PowerOfTwo-1
+    Stream      = 'iid'          # Choose between 'iid' or 'cud' seed   
+    df          = 250.           # Degree of freedom for student distribution
+    alpha       = 100.           # Scaling of the prior covariance
+    BurnInPowerOfTwo = 12        # Define BurnIn length
+  
+
+    # Means of ESS    
+    EssMeans    = np.zeros((len(Range), len(Cases)))     
+    
     c=0      
     for Case in Cases:
 
@@ -44,8 +53,7 @@ if __name__ == '__main__':
         XX          = Data.GetDesignMatrix()
         t           = Data.GetResponses()
         m           = Data.GetNumOfSamples()
-        alpha       = 100. # hyperparameter for prior
- 
+  
     
         ###############################
         # Initial Mean and Covariance #
@@ -69,26 +77,16 @@ if __name__ == '__main__':
         InitCov = np.linalg.inv(Ginit)
 
 
-        ###############################
-        # Initial Mean and Covariance #
-        ###############################  
-
         s=0
         for StepSize in Range:
-    
-            N           = 4              # Number of proposed states
-            PowerOfTwo  = 14             # Generates size of seed = 2**PowerOfTwo-1
-            Stream      = 'iid'          # Choose between 'iid' or 'cud' seed 
-#            InitMean = np.loadtxt('./GaussApproxims/ApprMean_{}.txt'.format(Case))
-#            InitCov = np.loadtxt('./GaussApproxims/ApprCov_{}.txt'.format(Case))     
-            df          = 250.            # Degree of freedom for student distribution
-            alpha       = 100.           # Scaling of the prior covariance
-            d           = len(InitMean)  # Dimension
-           
+      
     
             ##################
             # Run simulation #
             ##################
+            
+            # Dimension
+            d           = len(InitMean)              
         
             # Starting time of simulation
             StartTime = time.time()
@@ -108,7 +106,6 @@ if __name__ == '__main__':
             ###################
 
             # Define Burn-In
-            BurnInPowerOfTwo = 12
             BurnIn = 2**BurnInPowerOfTwo        
         
             # Samples
