@@ -24,45 +24,70 @@ from BayesianLogisticRegression import BayesianLogReg
 from Data import DataLoad
 
 
-# Specify data set
-Cases = ['ripley' , 'pima', 'heart', 'australian', 'german']
-# Specify StepSizes for individual data set (according to StepSize.py)
-StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])
-# Specify BurnIn for individual data set
-AllBurnInPowerOfTwo = [12, 12, 12, 12, 13]
+if __name__ == '__main__':
 
-
-
-# Create directory to save results in
-DirName = 'results'
-try:
-    # Create target Directory
-    os.mkdir(DirName)
-    print("Directory " , DirName ,  " Created ") 
-except FileExistsError:
-    print("Directory " , DirName ,  " already exists")
-
-
-c=0
-for Case in Cases:
+    #############################
+    # Parameters for simulation #
+    #############################  
     
-    print(Case)
+    # Number of simulations
+    NumOfSim = 25
+    # Define size of seed by powers of two
+    PowerOfTwoArray = np.arange(11,20) #11 for N=4 and 18 for N=1024
+    # Define number of proposed states
+    N_Array = np.array([4,8,16,32,64,128,256,512,1024])
+    # Degree of freedom of student proposal sampler (df>>1 close to gaussian)
+    df = 250.
+    # Scaling for prior covariance
+    alpha = 100.
+    # Specify data set
+    Cases = ['ripley']# , 'pima', 'heart', 'australian', 'german']    
+    # Specify StepSizes for individual data set (according to StepSize.py)
+    StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])
+    # Specify BurnIn for individual data set
+    AllBurnInPowerOfTwo = [12, 12, 12, 12, 13]
 
-    
-    # Specify directory under which results are saved
-    DirName2 = DirName+'/'+Case
+
+    ##########################################################################
+
+    ##############################
+    # Run convergence experiment #
+    ##############################
+
+
+    # Create directory to save results in
+    DirName = 'results'
     try:
         # Create target Directory
-        os.mkdir(DirName2)
-        print("Directory " , DirName2 ,  " Created ") 
+        os.mkdir(DirName)
+        print("Directory " , DirName ,  " Created ") 
     except FileExistsError:
-        print("Directory " , DirName2 ,  " already exists")  
+        print("Directory " , DirName ,  " already exists")
+
+
+    c=0
+    for Case in Cases:
     
-    
-    if __name__ == '__main__':
-    
+        print ("%%%%%%%%%%%%%%%%%%%%")
+        print ("Case = ", Case)    
+        print ("%%%%%%%%%%%%%%%%%%%%")
+        
+        # Specify directory under which Case results are saved
+        DirName2 = DirName+'/'+Case
+        try:
+            # Create target Directory
+            os.mkdir(DirName2)
+            print("Directory " , DirName2 ,  " Created ") 
+        except FileExistsError:
+            print("Directory " , DirName2 ,  " already exists")  
+
+
         # Starting Time
-        StartTimeAll = time.time()
+        StartTimeCase = time.time()
+        
+        # Proposal step size
+        StepSize = StepSizes[c]
+
     
         #################
         # Generate Data #
@@ -75,30 +100,10 @@ for Case in Cases:
         m           = Data.GetNumOfSamples()
         
         
-        #############################
-        # Parameters for simulation #
-        #############################  
-        
-        # Number of simulations
-        NumOfSim = 20
-        # Define size of seed by powers of two
-        PowerOfTwoArray = np.arange(11,20) #10 for N=3 and 19 for N=1023
-        # Define number of proposed states
-        N_Array = np.array([4,8,16,32,64])#,128,256,512,1024])
-        # Proposal step size
-        StepSize = StepSizes[c]
-        # Degree of freedom of student proposal sampler
-        df = 250. # large value means close to gaussian
-        # Scaling for prior covariance
-        alpha = 100.
-        print ("%%%%%%%%%%%%%%%%%%%%")
-        print ("Case = ", c)
-    
-        ##########################################################
-        # Compute starting value as root of posterior derivative #
-        ##########################################################
-    
-        
+        ######################################################
+        # Compute initial mean and covariance for BurnIn-run #
+        ######################################################
+            
         # Compute initial estimate of posterior mean via root of posterior derivative
         def PostDer(z):
             f = np.dot(XX,z)
@@ -109,7 +114,6 @@ for Case in Cases:
         InitMean = RootRes.x    
         
         # Calculate initial estimate of posterior covariance via FisherInfo
-        alpha = 100.
         f = np.dot(XX,InitMean)
         p = 1./(1+np.exp(-f))
         v = p*(np.ones(m)-p)
@@ -117,39 +121,41 @@ for Case in Cases:
         Ginit = np.dot(v1,XX) + np.identity(d)/alpha   
         InitCov = np.linalg.inv(Ginit)
     
-    
+
+        ##############################################
+        # Posterior goldstandard mean and covariance #
+        ##############################################
+
         # Approximated gold standard mean and covariance of posterior distribution
         GoldStandardPostCov = np.loadtxt('./GaussApproxims/ApprCov_{}.txt'.format(Case))
         GoldStandardApprPostMean = np.loadtxt('./GaussApproxims/ApprMean_{}.txt'.format(Case))    
-        
-#        InitMean = GoldStandardApprPostMean
-#        InitCov = GoldStandardPostCov
+
 
         ###############
         # Burn-In Run #
         ###############
     
         BurnInPowerOfTwo = AllBurnInPowerOfTwo[c]
-        WeightIn = 2**BurnInPowerOfTwo-1
         BurnInStepSize=1.2
-        BurnInN = 4
+        BurnInN = 8
     
         BurnInQMC_BLR = BayesianLogReg(BurnInN, BurnInStepSize, BurnInPowerOfTwo, \
              InitMean, InitCov, df, Case, alpha, Stream='cud')            
 
-        
+        # Estimates from BurnIn-run
         QMC_Samples = BurnInQMC_BLR.GetSamples()
         QMC_IS_MeanEstimate = BurnInQMC_BLR.GetIS_MeanEstimate(BurnInN)
         QMC_IS_CovEstimate = BurnInQMC_BLR.GetIS_CovEstimate(BurnInN)
         
-        InitMean = QMC_IS_MeanEstimate
-        InitCov = QMC_IS_CovEstimate
-    
     
         ##################
         # Initialisation #
         ##################
-    
+
+        # Define initial mean and covariance as estimates from BurnIn-run
+        InitMean = QMC_IS_MeanEstimate
+        InitCov = QMC_IS_CovEstimate
+
         # Arrays to be filled with IS posterior estimates
         QMC_EstimArray = np.zeros((len(N_Array), NumOfSim, d))
         PSR_EstimArray = np.zeros((len(N_Array), NumOfSim, d))
@@ -160,20 +166,20 @@ for Case in Cases:
             
             for j in range(NumOfSim):
     
-                #############################
-                # Parameters for simulation #
-                ############################# 
+                #########################################################
+                # Parameters for individual simulation with N proposals #
+                #########################################################
                 
                 N = int(N_Array[p])
                 PowerOfTwo = PowerOfTwoArray[p]
                 NumOfIter = int((2**PowerOfTwo-1.)/N)
-    
+                WeightIn = 2**BurnInPowerOfTwo-1
+        
                 print ('Number of proposals = ', N)
     
                 # Starting Time
                 StartTime = time.time()
-                   
-                
+                                   
                 ##################
                 # Run simulation #
                 ##################
@@ -319,8 +325,9 @@ for Case in Cases:
     
     
         # Overall End Time
-        EndTimeAll = time.time()
-        print ("Overall CPU time =", EndTimeAll - StartTimeAll)
+        EndTimeCase = time.time()
+        TimeCase = EndTimeCase - StartTimeCase
+        print ("Overall CPU time =", TimeCase)
     
         #########################################################################
     
@@ -631,7 +638,7 @@ for Case in Cases:
     
         # Miscellaneous  
         np.savetxt('results/{}/N_Array.txt'.format(Case), N_Array)
-        np.savetxt('results/{}/cpu_time.txt'.format(Case), np.array([EndTimeAll - StartTimeAll]))
+        np.savetxt('results/{}/cpu_time.txt'.format(Case), np.array([TimeCase]))
         np.savetxt('results/{}/NumOfIter.txt'.format(Case), np.array([NumOfIter]))
         np.savetxt('results/{}/StepSize.txt'.format(Case), np.array([StepSize]))
         np.savetxt('results/{}/BurnInPowerOfTwo.txt'.format(Case), np.array([BurnInPowerOfTwo]))
