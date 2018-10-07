@@ -41,38 +41,36 @@ except FileExistsError:
 
 if __name__ == '__main__':
 
-    # Starting Time
-    StartTimeAll = time.time()
-
-    #################
-    # Generate Data #
-    #################
-
-    alpha           = 0.5
-    d               = 10
-    Data            = DataGen(alpha, d)
-    X               = Data.GetDesignMatrix()
-    Obs             = Data.GetObservations()
-    NumOfSamples    = Data.GetNumOfSamples()
-    
-    
     #############################
     # Parameters for simulation #
     #############################  
     
     # Number of simulations
-    NumOfSim = 5
+    NumOfSim = 25
     # Define size of seed by powers of two
     PowerOfTwoArray = np.arange(11,20) #10 for N=3 and 19 for N=1023
     # Define number of proposed states
-    N_Array = np.array([3,7])#,15,31])#,63,127,255,511,1023])  
+    N_Array = np.array([3,7,15,31,63,127,255,511,1023])  
     # Proposal step size
     StepSize = np.sqrt(2) 
     # Proposal covariance scaling
-    CovScaling = 1.
+    CovScaling = 1.    
+    # Dimension
+    d = 1
+    # Obervation noise scaling
+    alpha = 0.5
+
+
+    #################
+    # Generate Data #
+    #################
+
+    Data            = DataGen(alpha, d)
+    X               = Data.GetDesignMatrix()
+    Obs             = Data.GetObservations()
+    NumOfSamples    = Data.GetNumOfSamples()
     
-    
-    
+
     ######################################################
     # Compute prior, likelihood and posterior quantities #
     ######################################################
@@ -110,6 +108,9 @@ if __name__ == '__main__':
     ##################
     # Initialisation #
     ##################
+    
+    # Starting Time
+    StartTimeAll = time.time()    
 
     # Arrays to be filled with IS posterior estimates
     QMC_EstimArray = np.zeros((len(N_Array), NumOfSim, d))
