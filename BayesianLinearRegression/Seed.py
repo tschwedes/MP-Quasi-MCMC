@@ -19,14 +19,19 @@ def SeedGen(d, PowerOfTwo, Stream):
 
     inputs:
     -------   
-    d               - Integer; dimension of posterior    
-    alpha           - Standard deviation for observation noise
-    PowerOfTwo      - Integer in [10,23]; defines size S of seed by S=2**PowerOfTwo-1
-    Stream          - String; either 'cud' or 'iid'; defining what seed is used
+    d               - int
+                    dimension of posterior    
+    alpha           - float
+                    Standard deviation for observation noise
+    PowerOfTwo      - int in [10,23]
+                    defines size S of seed by S=2**PowerOfTwo-1
+    Stream          - string
+                    either 'cud' or 'iid'; defining what seed is used
 
     outputs:
     ------- 
-    xs              - (2**PowerOfTwo) x d-Array of seed
+    xs              - array_like
+                    (2**PowerOfTwo) x d-Array of seed
     """
     
     if Stream == 'iid':

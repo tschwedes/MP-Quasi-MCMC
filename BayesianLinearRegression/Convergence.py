@@ -73,9 +73,9 @@ if __name__ == '__main__':
     
     
     
-    ###########################################
-    # Compute prior and likelihood quantities #
-    ###########################################
+    ######################################################
+    # Compute prior, likelihood and posterior quantities #
+    ######################################################
     
     # Compute covariance of g-prior
     g = 1./NumOfSamples
@@ -84,14 +84,14 @@ if __name__ == '__main__':
     InvG_prior = np.linalg.inv(G_prior)
     Lambda0 = sigmaSq * InvG_prior
     
-    # Gaussian approximations for independent sampler
-    PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,Obs))
-    PostCov = sigmaSq*np.linalg.pinv(np.dot(X.T,X) + Lambda0)      
-    
     # Fisher Information as constant metric tensor
     FisherInfo = InvG_prior + alpha*np.dot(X.T,X)
     InvFisherInfo = np.linalg.inv(FisherInfo) 
-
+    
+    # Analytical posterior mean and covariance
+    PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,Obs))
+    PostCov = sigmaSq*np.linalg.pinv(np.dot(X.T,X) + Lambda0)      
+    
 
     ##########################################################
     # Compute starting value as root of posterior derivative #
@@ -105,7 +105,6 @@ if __name__ == '__main__':
     # Compute root
     RootRes = root(PostDeriv, np.zeros(d), tol=1e-12)
     x0 = RootRes.x  # Starting value      
-    
 
 
     ##################

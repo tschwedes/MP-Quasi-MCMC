@@ -27,14 +27,22 @@ class BayesianLinReg:
     
         Inputs:
         -------   
-        d               - Integer; dimension of posterior    
-        alpha           - Standard deviation for Observation noise
-        x0              - D-dimensional array; starting value
-        N               - Integer; number of proposals per iteration
-        StepSize        - Float; step size for proposed jump in mean
-        CovScaling      - Float; scaling of proposal covariance
-        PowerOfTwo      - Defines size S of seed by S=2**PowerOfTwo-1
-        Stream          - String; either 'cud' or 'iid'; defining what seed is used
+        d               - int 
+                        dimension of posterior    
+        alpha           - float
+                        Standard deviation for Observation noise
+        x0              - array_like
+                        d-dimensional array; starting value
+        N               - int 
+                        number of proposals per iteration
+        StepSize        - float 
+                        step size for proposed jump in mean
+        CovScaling      - float 
+                        scaling of proposal covariance
+        PowerOfTwo      - int
+                        defines size S of seed by S=2**PowerOfTwo-1
+        Stream          - string
+                        either 'cud' or 'iid'; defining what seed is used
         """
     
         #################
@@ -186,11 +194,13 @@ class BayesianLinReg:
         
         Inputs:
         ------
-        BurnIn  - Integer; Burn-In period
+        BurnIn  - int 
+                Burn-In period
         
         Outputs:
         -------
-        Samples - (Number of samples) x d-dimensional array        
+        Samples - array_like
+                (Number of samples) x d-dimensional arrayof Samples      
         """
         
         Samples = np.concatenate(self.xVals[1:], axis=0)[BurnIn:,:]
@@ -205,11 +215,13 @@ class BayesianLinReg:
         
         Inputs:
         ------
-        BurnIn  - Integer; Burn-In period
+        BurnIn  - int
+                Burn-In period
         
         Outputs:
         -------
-        AcceptRate - Float; average acceptance rate of MP-QMCMC 
+        AcceptRate - float
+                    average acceptance rate of MP-QMCMC 
         """    
         
         AcceptVals = np.concatenate(self.AcceptVals)[BurnIn:]
@@ -222,11 +234,11 @@ class BayesianLinReg:
         
         """
         Compute importance sampling estimate
-        
-        
+             
         Outputs:
         -------
-        WeightedMean - d-dimensional array
+        WeightedMean    - array_like
+                        d-dimensional array
         """            
         
         WeightedMean = np.mean(self.WeightedSum[int(BurnIn/N):,:], axis=0)
@@ -242,8 +254,10 @@ class BayesianLinReg:
         
         Inputs:
         ------
-        Index   - Integer; index of dimension for marginal distribution
-        BurnIn  - Integer; Burn-In period
+        Index   - int
+                index of dimension for marginal distribution
+        BurnIn  - int
+                Burn-In period
         
         Outputs:
         -------
