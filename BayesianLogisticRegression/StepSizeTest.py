@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     Range = np.linspace(1.0, 1.3, 13)
     Cases = ['ripley', 'pima', 'heart', 'australian', 'german']
-    NumOfExperiments = 10
+    NumOfExperiments = 5
     AllStepSizes = np.zeros((len(Cases), NumOfExperiments))    
     
     for L in range(NumOfExperiments):   
@@ -179,7 +179,7 @@ if __name__ == '__main__':
             for StepSize in Range:
         
                 N           = 4              # Number of proposed states
-                PowerOfTwo  = 14             # Generates size of seed = 2**PowerOfTwo-1
+                PowerOfTwo  = 15             # Generates size of seed = 2**PowerOfTwo-1
                 Stream      = 'iid'          # Choose between 'iid' or 'cud' seed 
     #            InitMean = np.loadtxt('./GaussApproxims/ApprMean_{}.txt'.format(Case))
     #            InitCov = np.loadtxt('./GaussApproxims/ApprCov_{}.txt'.format(Case))     
