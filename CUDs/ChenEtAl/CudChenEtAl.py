@@ -194,4 +194,7 @@ def chen_construction(m):
     return cuds
 
 
-chen_construction(10)  
+if __name__ == '__main__':
+    
+    # Construct CUD sequence
+    Cuds = chen_construction(10)  
