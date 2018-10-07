@@ -17,9 +17,9 @@ if __name__ == '__main__':
     #############################
 
     Case = 'ripley'         # Data case
-    N = 4               # Number of proposed states
-    StepSize = 1.4         # Proposal step size
-    PowerOfTwo = 12        # Generates size of seed = 2**PowerOfTwo-1
+    N = 4                   # Number of proposed states
+    StepSize = 1.2          # Proposal step size
+    PowerOfTwo = 12         # Generates size of seed = 2**PowerOfTwo-1
     Stream = 'cud'          # Choose between 'iid' or 'cud' seed 
     InitMean = np.loadtxt('./GaussApproxims/ApprMean_{}.txt'.format(Case))
     InitCov = np.loadtxt('./GaussApproxims/ApprCov_{}.txt'.format(Case))     

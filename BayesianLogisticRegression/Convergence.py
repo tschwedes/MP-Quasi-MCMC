@@ -210,7 +210,6 @@ for Case in Cases:
                 # Compute estimated IS mean
                 PSR_EstimArray[p,j,:] = PSR_BLR.GetIS_MeanEstimate(N, WeightIn)
     
-        c+=1
         
         ###############################
         # TRACE OF EMPIRICAL VARIANCE #
@@ -654,3 +653,6 @@ for Case in Cases:
         # MSE slope
         np.savetxt('results/{}/QMC_mse_slope.txt'.format(Case), np.array([QMC_mse_slope]))
         np.savetxt('results/{}/PSR_mse_slope.txt'.format(Case), np.array([PSR_mse_slope]))    
+        
+        # Next case
+        c+=1

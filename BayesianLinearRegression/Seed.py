@@ -40,7 +40,7 @@ def SeedGen(d, PowerOfTwo, Stream):
 
     elif Stream == 'cud':
         # Load cud point sequence
-        cuds = np.loadtxt('../cuds/chen/cuds_2_{}.txt'.format(PowerOfTwo))
+        cuds = np.load('../CUDs/ChenEtAl/CudsChen_{}.npy'.format(PowerOfTwo))
         
         # Create d-dimensional sequence by shifted cud sequence
         UsedLength = int(cuds.shape[0]/d)*d
