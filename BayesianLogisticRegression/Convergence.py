@@ -43,11 +43,11 @@ if __name__ == '__main__':
     Cases = ['ripley']# , 'pima', 'heart', 'australian', 'german'][1:]
    
     # Specify StepSizes for individual data set (according to StepSize.py)
-    StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])[1:]
+    StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])
 
     # Specify BurnIn for individual data set
-    AllBurnInPowerOfTwo = [12, 12, 12, 12, 13][1:]
-
+    AllBurnInPowerOfTwo = [12, 12, 12, 12, 13]
+    
 
     ##########################################################################
 
