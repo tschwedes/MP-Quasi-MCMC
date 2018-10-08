@@ -4,13 +4,12 @@
 Created on Wed Sep 26 15:25:19 2018
 
 @author: Tobias Schwedes
-"""
 
-"""
+
 Script to analyse the convergence in Empirical Variance and Squared Bias
 (as well as combined = MSE) for importance sampling MP-MCMC driven by a
 IID seed VS. by a CUD seed. The underlying sampling method makes use of
-Riemannian manifold Metropolis-Adjunsted Langevin proposals.
+an independent adaptive proposal sampler
 """
 
 
@@ -41,11 +40,13 @@ if __name__ == '__main__':
     # Scaling for prior covariance
     alpha = 100.
     # Specify data set
-    Cases = ['ripley']# , 'pima', 'heart', 'australian', 'german']    
+    Cases = ['ripley']# , 'pima', 'heart', 'australian', 'german'][1:]
+   
     # Specify StepSizes for individual data set (according to StepSize.py)
-    StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])
+    StepSizes = np.array([1.2, 1.05, 1.15, 1.1, 1.15])[1:]
+
     # Specify BurnIn for individual data set
-    AllBurnInPowerOfTwo = [12, 12, 12, 12, 13]
+    AllBurnInPowerOfTwo = [12, 12, 12, 12, 13][1:]
 
 
     ##########################################################################
@@ -350,9 +351,9 @@ if __name__ == '__main__':
                     color='darkred')  
     
     
-        ax1.errorbar(N_Array, .1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+        ax1.errorbar(N_Array, 1*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
                     label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-        ax1.errorbar(N_Array, 0.3*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+        ax1.errorbar(N_Array, 0.5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
                     label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
         ax1.set_xlabel('Number of Proposals $N$ \n (Step Size = %1.3f)' %StepSize)
     
@@ -370,9 +371,9 @@ if __name__ == '__main__':
         ax2 = ax1.twiny()
         ax2.set_xscale("log")
         ax2.set_yscale("log")
-        ax2.errorbar(N_Array*NumOfIter, 0.1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+        ax2.errorbar(N_Array*NumOfIter, 1.*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
                     label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-        ax2.errorbar(N_Array*NumOfIter, 0.3*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+        ax2.errorbar(N_Array*NumOfIter, 0.5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
                     label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
         x2_ticks_labels = np.array([5000, 25000, 100000, 500000])
         ax2.set_xticks(x2_ticks_labels)
