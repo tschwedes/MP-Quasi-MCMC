@@ -50,7 +50,7 @@ def chen_construction(m):
                         'Choose integer among: 10 <= m <= 32.') 
         
     # LFSR parameter tupels [m,s=s(m)] such that 2^m-1 and f^s(m) are coprime 
-    PrimList = [[10,115], [11,291], [12,171], [13,267], [14,332], [15,388],\
+    PrimList = [[10,115], [11,291], [12,172], [13,267], [14,332], [15,388],\
             [16,283], [17,514], [18,698], [19,706], [20,1304], [21,920],\
             [22,1336], [23,1236], [24,1511], [25,1445], [26,1906],\
             [27,1875], [28,2573], [29,2633], [30,2423], [31,3573], [32,3632]] 
@@ -197,4 +197,5 @@ def chen_construction(m):
 if __name__ == '__main__':
     
     # Construct CUD sequence
-    Cuds = chen_construction(10)  
+    Cuds = chen_construction(10)      
+       
