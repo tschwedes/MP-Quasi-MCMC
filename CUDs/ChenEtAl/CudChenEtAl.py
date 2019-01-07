@@ -68,128 +68,174 @@ def chen_construction(m):
     print ("Constructing a CUD sequence of length =", 2**m-1)
     
     # Starting coefficients
-    s0 = np.ones(m)
-    so = s0
+    so=np.ones(m)
+    soNew=so.copy()
     
     # Differentiate cases of constructions depending on m and s(m)
     if m==10:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()   
             cuds[i] = np.sum(so*bins)
     elif m==11:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[2])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[2])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins)
     elif m==12:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[4]+so[6])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[4]+so[6])%2
+                so=soNew.copy()        
             cuds[i] = np.sum(so*bins)
     elif m==13:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[3]+so[4])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[3]+so[4])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins) 
     elif m==14:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[3]+so[5])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[3]+so[5])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins)         
     elif m==15:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins)            
     elif m==16:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[2]+so[3]+so[5])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[2]+so[3]+so[5])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins)           
     elif m==17:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()                
             cuds[i] = np.sum(so*bins)           
     elif m==18:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[7])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[7])%2
+                so=soNew.copy()                    
             cuds[i] = np.sum(so*bins)          
     elif m==19:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[2]+so[5])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[2]+so[5])%2
+                so=soNew.copy()                   
             cuds[i] = np.sum(so*bins)          
     elif m==20:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()                 
             cuds[i] = np.sum(so*bins)          
     elif m==21:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[2])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[2])%2
+                so=soNew.copy()                        
             cuds[i] = np.sum(so*bins)          
     elif m==22:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1])%2
+                so=soNew.copy()                  
             cuds[i] = np.sum(so*bins)          
     elif m==23:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[5])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[5])%2
+                so=soNew.copy()                  
             cuds[i] = np.sum(so*bins)           
     elif m==24:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[3]+so[4])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[3]+so[4])%2
+                so=soNew.copy()                 
             cuds[i] = np.sum(so*bins)          
     elif m==25:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()                   
             cuds[i] = np.sum(so*bins)           
     elif m==26:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[2]+so[6])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[2]+so[6])%2
+                so=soNew.copy()  
             cuds[i] = np.sum(so*bins)            
     elif m==27:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[2]+so[5])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[2]+so[5])%2
+                so=soNew.copy()  
             cuds[i] = np.sum(so*bins)         
     elif m==28:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()  
             cuds[i] = np.sum(so*bins)               
     elif m==29:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[2])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[2])%2
+                so=soNew.copy()  
             cuds[i] = np.sum(so*bins)           
     elif m==30:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[1]+so[4]+so[6])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[1]+so[4]+so[6])%2
+                so=soNew.copy()  
             cuds[i] = np.sum(so*bins)           
     elif m==31:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[3])%2)
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[3])%2
+                so=soNew.copy()
             cuds[i] = np.sum(so*bins)                      
     elif m==32:
         for i in range(2**m-1):
             for j in range(s):
-                so = np.append(so[1:], (so[0]+so[2]+so[6]+so[7])%2)
-            cuds[i] = np.sum(so*bins)      
+                soNew[:-1] = so[1:]
+                soNew[-1]  = (so[0]+so[2]+so[6]+so[7])%2
+                so=soNew.copy()
+            cuds[i] = np.sum(so*bins)    
 
-    # Save CUD sequence as .npy      
-    np.save('CudsChen_{}'.format(m), cuds)
+#    # Save CUD sequence as .npy      
+#    np.save('CudsChen_{}'.format(m), cuds)
         
     return cuds
 
@@ -197,5 +243,5 @@ def chen_construction(m):
 if __name__ == '__main__':
     
     # Construct CUD sequence
-    Cuds = chen_construction(10)      
-       
+    Cuds = chen_construction(13)      
+#    np.save('CudsChen_20.npy', Cuds)   
