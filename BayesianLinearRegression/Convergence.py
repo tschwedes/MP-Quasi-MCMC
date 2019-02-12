@@ -48,11 +48,11 @@ if __name__ == '__main__':
     # Number of simulations
     NumOfSim = 10
     # Define size of seed by powers of two
-    PowerOfTwoArray = np.arange(11,20) #10 for N=3 and 19 for N=1023
+    PowerOfTwoArray = np.arange(11,20)
     # Define number of proposed states
-    N_Array = np.array([4,8,16,32,64,127,256,512,1024])#,511,1023])  
+    N_Array = np.array([4,8,16,32,64,127,256])#,512,1024])  
     # Proposal step size
-    StepSize = 1.4
+    StepSize = 1.2
     # Dimension
     d = 1
     # Obervation noise scaling
@@ -98,9 +98,10 @@ if __name__ == '__main__':
     # Compute root
     RootRes = root(PostDeriv, np.zeros(d), tol=1e-12)
     x0 = RootRes.x  # Starting value      
+    InitMean = x0 # Starting Mean value
 
-    InitMean = x0
-    InitCov = np.identity(d)/(100*np.sqrt(d))
+    # Starting covariance as scaled prior covariance
+    InitCov = G_prior/(100*np.sqrt(d))
 
 
     ##################
