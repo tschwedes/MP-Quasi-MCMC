@@ -16,12 +16,11 @@ if __name__ == '__main__':
     # Parameters for simulation #
     #############################
     
-    d           = 3                 # Dimension of posterior
+    d           = 1                # Dimension of posterior
     alpha       = 0.5               # Standard deviation of observation noise
     x0          = np.zeros(d)       # Starting value
     N           = 1024              # Number of proposed states
-    StepSize    = np.sqrt(2)        # Proposal step size
-    CovScaling  = 1.                # Proposal covariance scaling
+    StepSize    = 1.2 #np.sqrt(2)        # Proposal step size
     PowerOfTwo  = 15                # generates size of seed = 2**PowerOfTwo-1
     Stream      = 'cud'             # choose between 'iid' or 'cud' seed
     
@@ -34,10 +33,13 @@ if __name__ == '__main__':
 
     # Starting time of simulation
     StartTime = time.time()
+    
+    InitMean = np.ones(d)
+    InitCov = np.identity(d)
 
     # Run simulation
-    BLR = BayesianLinReg(d, alpha, x0, N, StepSize, CovScaling, \
-                             PowerOfTwo, Stream='cud')
+    BLR = BayesianLinReg(d, alpha, x0, N, StepSize, \
+                             PowerOfTwo, InitMean, InitCov, Stream='cud')
 
     # Stopping time
     EndTime = time.time()

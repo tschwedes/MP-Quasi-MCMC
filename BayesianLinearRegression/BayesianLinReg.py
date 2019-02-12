@@ -11,14 +11,15 @@ for multiple proposal Quasi-MCMC.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm, rv_discrete
+from scipy.stats import norm
 from Data import DataGen
 from Seed import SeedGen
 
 
 class BayesianLinReg:
     
-    def __init__(self, d, alpha, x0, N, StepSize, CovScaling, PowerOfTwo, Stream='cud'):
+    def __init__(self, d, alpha, x0, N, StepSize, PowerOfTwo, \
+                 InitMean, InitCov, Stream, WeightIn=0):
     
         """
         Implements the Bayesian Linear Regression based on 
@@ -58,7 +59,7 @@ class BayesianLinReg:
         # Choose stream for Markoc Chain #
         ##################################
     
-        xs = SeedGen(d, PowerOfTwo, Stream)
+        xs = SeedGen(d+1, PowerOfTwo, Stream)
     
         ###########################################
         # Compute prior and likelihood quantities #
@@ -69,11 +70,7 @@ class BayesianLinReg:
         sigmaSq = 1./alpha
         G_prior = sigmaSq / g * np.linalg.inv(np.dot(X.T,X))
         InvG_prior = np.linalg.inv(G_prior)
-        
-        # Fisher Information as constant metric tensor
-        FisherInfo = InvG_prior + alpha*np.dot(X.T,X)
-        InvFisherInfo = np.linalg.inv(FisherInfo)  
-        
+           
          
         ##################
         # Initialisation #
@@ -84,7 +81,7 @@ class BayesianLinReg:
         self.xVals.append(x0)
     
         # Iteration number
-        NumOfIter = int(int((2**PowerOfTwo-1)/d)*d/(N+1))
+        NumOfIter = int(int((2**PowerOfTwo-1)/(d+1))*(d+1)/(N))
         print ('Total number of Iterations = ', NumOfIter)
     
         # set up acceptance rate array
@@ -94,10 +91,28 @@ class BayesianLinReg:
         xI = self.xVals[0]
         I = 0
         
-        # Weighted Sum and Covariance Arrays
-        self.WeightedSum = np.zeros((NumOfIter,d))
         
-    
+        # Number of iterations used for initial approximated posterior mean
+        M = int(WeightIn/N)+1        
+        
+        
+        # Weighted Sum and Covariance Arrays
+        self.WeightedSum = np.zeros((NumOfIter+M,d))
+        self.WeightedCov = np.zeros((NumOfIter+M,d,d)) 
+        self.WeightedSum[0:M,:] = InitMean
+        self.WeightedCov[0:M,:] = InitCov 
+        
+
+        # Approximate Posterior Mean and Covariance as initial estimates
+        self.ApprPostMean = InitMean
+        self.ApprPostCov = InitCov        
+        
+
+        # Cholesky decomposition of initial Approximate Posterior Covariance
+        CholApprPostCov = np.linalg.cholesky(self.ApprPostCov)
+        InvApprPostCov = np.linalg.inv(self.ApprPostCov)
+        
+        
         ####################
         # Start Simulation #
         ####################
@@ -109,27 +124,14 @@ class BayesianLinReg:
             ######################
               
             # Load stream of points in [0,1]^d
-            U = xs[n*(N+1):(n+1)*(N+1),:]
-    
-            # Compute proposal mean according to Langevin
-            GradLog_xI = -np.dot(InvG_prior,xI) + alpha * np.dot(X.T, (Obs - np.dot(X, xI)))
-            Mean_xI = xI + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_xI)
-                
-            # Generate auxiliary proposal state according to MALA 
-            # (facilitates computation of proposing probabilities)
-            z = Mean_xI + np.dot(norm.ppf(U[0,:], loc=np.zeros(d), scale=1.), \
-                               np.linalg.cholesky(CovScaling**2*InvFisherInfo).T)
-    
-            # Compute mean of auxiliary proposal state according to MALA
-            GradLog_z = -np.dot(InvG_prior,z) + alpha * np.dot(X.T, (Obs - np.dot(X, z)))
-            Mean_z = z + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_z)
-    
-            # Generate proposals via inverse CDF transformation
-            y = Mean_z + np.dot(norm.ppf(U[1:,:], loc=np.zeros(d), scale=1.), \
-                              np.linalg.cholesky(CovScaling**2*InvFisherInfo).T)
-    
+            U = xs[n*(N):(n+1)*(N),:]
+            
+            # Sample new proposed States according to multivariate t-distribution               
+            y = self.ApprPostMean + np.dot(norm.ppf(U[:,:d], loc=np.zeros(d), \
+                                                    scale=StepSize), CholApprPostCov)
+            
             # Add current state xI to proposals    
-            Proposals = np.insert(y, I, xI, axis=0)
+            Proposals = np.insert(y, 0, xI, axis=0)
     
     
             ########################################################
@@ -143,15 +145,11 @@ class BayesianLinReg:
             LogPosteriors   = LogPriors + LogLikelihoods
     
             # Compute Log of transition probabilities
-            GradLog_states = - np.dot(InvG_prior,Proposals.T) \
-                             + alpha * np.dot(X.T, (Obs - np.dot(X, Proposals.T).T).T)
-            Mean_Proposals = Proposals + StepSize**2/2.*np.dot(InvFisherInfo,GradLog_states).T
-            LogKiz = -0.5*np.dot(np.dot(Mean_Proposals-z, FisherInfo/(CovScaling**2)), \
-                                 (Mean_Proposals - z).T).diagonal(0) # from any state to z
-            LogKzi = -0.5*np.dot(np.dot(Proposals-Mean_z, FisherInfo/(CovScaling**2)), \
-                                 (Proposals - Mean_z).T).diagonal(0) # from z to any state
-            LogKs = LogKiz + np.sum(LogKzi) - LogKzi
-    
+            LogK_ni = -0.5*np.dot(np.dot(Proposals-self.ApprPostMean, InvApprPostCov/(StepSize**2)), \
+                                 (Proposals - self.ApprPostMean).T).diagonal(0)
+            LogKs = np.sum(LogK_ni) - LogK_ni # from any state to all others
+            
+
             # Compute weights
             LogPstates = LogPosteriors + LogKs
             Sorted_LogPstates = np.sort(LogPstates)
@@ -166,7 +164,16 @@ class BayesianLinReg:
     
             # Compute weighted sum as posterior mean estimate
             WeightedStates = np.tile(Pstates, (d,1)) * Proposals.T
-            self.WeightedSum[n,:] = np.sum(WeightedStates, axis=1).copy()
+            self.WeightedSum[n+M,:] = np.sum(WeightedStates, axis=1).copy()
+
+            # Update Approximate Posterior Mean
+            self.ApprPostMean = np.mean(self.WeightedSum[:n+M+1,:], axis=0) 
+
+            # Compute weighted sum as posterior covariance estimate
+            B1 = (Proposals - self.ApprPostMean).reshape(N+1,d,1) 
+            B2 = np.transpose(B1,(0,2,1)) 
+            A = np.matmul(B1, B2)
+            self.WeightedCov[n+M,:,:] = np.sum((np.tile(Pstates, (d,d,1)) * A.T).T, axis=0)
     
     
             ##################################
@@ -174,7 +181,8 @@ class BayesianLinReg:
             ##################################
     
             # Sample N new states 
-            Is = rv_discrete(values=(range(N+1),Pstates)).rvs(size=N)
+            PstatesSum = np.cumsum(Pstates)
+            Is = np.searchsorted(PstatesSum, U[:,d:].flatten())
             xvals_new = Proposals[Is]
             self.xVals.append(xvals_new)
     
@@ -183,7 +191,7 @@ class BayesianLinReg:
             self.AcceptVals.append(AcceptValsNew)
     
             # Update current state
-            I = Is[-1] #rv_discrete(values=(range(N+1),Pstates)).rvs(size=1)
+            I = Is[-1]
             xI = Proposals[I,:]
     
     

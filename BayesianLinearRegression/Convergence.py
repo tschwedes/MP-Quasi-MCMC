@@ -46,15 +46,13 @@ if __name__ == '__main__':
     #############################  
     
     # Number of simulations
-    NumOfSim = 25
+    NumOfSim = 10
     # Define size of seed by powers of two
     PowerOfTwoArray = np.arange(11,20) #10 for N=3 and 19 for N=1023
     # Define number of proposed states
-    N_Array = np.array([3,7,15,31,63,127,255,511,1023])  
+    N_Array = np.array([4,8,16,32,64,127,256,512,1024])#,511,1023])  
     # Proposal step size
-    StepSize = np.sqrt(2) 
-    # Proposal covariance scaling
-    CovScaling = 1.    
+    StepSize = 1.4
     # Dimension
     d = 1
     # Obervation noise scaling
@@ -81,10 +79,7 @@ if __name__ == '__main__':
     G_prior = sigmaSq / g * np.linalg.inv(np.dot(X.T,X))
     InvG_prior = np.linalg.inv(G_prior)
     Lambda0 = sigmaSq * InvG_prior
-    
-    # Fisher Information as constant metric tensor
-    FisherInfo = InvG_prior + alpha*np.dot(X.T,X)
-    InvFisherInfo = np.linalg.inv(FisherInfo) 
+
     
     # Analytical posterior mean and covariance
     PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,Obs))
@@ -103,6 +98,9 @@ if __name__ == '__main__':
     # Compute root
     RootRes = root(PostDeriv, np.zeros(d), tol=1e-12)
     x0 = RootRes.x  # Starting value      
+
+    InitMean = x0
+    InitCov = np.identity(d)/(100*np.sqrt(d))
 
 
     ##################
@@ -141,10 +139,10 @@ if __name__ == '__main__':
             # Run simulation #
             ##################
             
-            QMC_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, CovScaling, \
-                             PowerOfTwo, Stream='cud')            
-            PSR_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, CovScaling, \
-                             PowerOfTwo, Stream='iid')     
+            QMC_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, \
+                             PowerOfTwo, InitMean, InitCov, Stream='cud')           
+            PSR_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, \
+                             PowerOfTwo, InitMean, InitCov, Stream='iid')     
                   
             # Stopping time
             EndTime = time.time()
@@ -594,7 +592,6 @@ if __name__ == '__main__':
     np.savetxt('{}/cpu_time.txt'.format(DirName), np.array([EndTimeAll - StartTimeAll]))
     np.savetxt('{}/NumOfIter.txt'.format(DirName), np.array([NumOfIter]))
     np.savetxt('{}/StepSize.txt'.format(DirName), np.array([StepSize]))
-    np.savetxt('{}/CovScaling.txt'.format(DirName), np.array([CovScaling]))
 
     # Empirical variance and MSE reductions    
     np.savetxt('{}/VarianceReductions.txt'.format(DirName), PSR_EstimAverageVarTrace\
