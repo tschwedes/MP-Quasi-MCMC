@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Feb 20 15:11:48 2019
+Created on Mon Oct  1 15:11:48 2018
 
 @author: Tobias Schwedes
 
@@ -10,7 +10,7 @@ proposals and importance sampling applied to Bayesian linear regression.
 """
 
 import numpy as np
-
+from float_bit_operations import float_xor
 
 def SeedGen(d, PowerOfTwo, Stream):
 
@@ -19,13 +19,13 @@ def SeedGen(d, PowerOfTwo, Stream):
 
     inputs:
     -------   
-    d               - int
+    d               - int 
                     dimension of posterior    
     alpha           - float
                     Standard deviation for observation noise
     PowerOfTwo      - int in [10,23]
                     defines size S of seed by S=2**PowerOfTwo-1
-    Stream          - string
+    Stream          - string 
                     either 'cud' or 'iid'; defining what seed is used
 
     outputs:
@@ -49,12 +49,17 @@ def SeedGen(d, PowerOfTwo, Stream):
         
         for i in range(d)[1:]:
             xs = np.append(xs, np.roll(TrimmedCuds,-i))        
-        
+
         xs = xs.reshape(UsedLength,d)
         xs = np.append(np.zeros(d)+1e-9,xs).reshape(UsedLength+1,d)
+        
+   
         u_rand = np.random.uniform(0,1,d)
-        xs_sh = xs + u_rand
-        xs = xs_sh - np.floor(xs_sh) 
+        for j in range(d):
+            u_ = u_rand[j]
+            for k in range(UsedLength):
+                 xs[k,j] = float_xor(xs[k,j],u_)
+    
 
     else:
         raise ValueError('Stream must be chose either as "iid" or as "cud"')

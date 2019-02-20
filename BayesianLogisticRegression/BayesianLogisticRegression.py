@@ -11,10 +11,10 @@ for multiple proposal Quasi-MCMC.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import rv_discrete
 from StudentT import multivariate_t_rvs_custom_seed, multivariate_t_LogPdf
 from Data import DataLoad
 from Seed import SeedGen
+#from Seed_digShift import SeedGen
 
 
 class BayesianLogReg:
@@ -28,7 +28,7 @@ class BayesianLogReg:
         Data sets in ./Data/ by using multiple proposal quasi MCMC with 
         Importance Sampling (IS-MP-QMCMC)
     
-        inputs:
+        Inputs:
         -------   
         N               - int
                         number of proposals per iteration
@@ -67,7 +67,7 @@ class BayesianLogReg:
         # Choose stream for Markoc Chain #
         ##################################
     
-        xs = SeedGen(d, PowerOfTwo, Stream)
+        xs = SeedGen(d+2, PowerOfTwo, Stream)
     
          
         ##################
@@ -79,13 +79,13 @@ class BayesianLogReg:
         self.xVals.append(InitMean)
     
         # Iteration number
-        NumOfIter = int(int((2**PowerOfTwo-1)/(d+1))*(d+1)/N)
+        NumOfIter = int(int((2**PowerOfTwo-1)/(d+2))*(d+2)/N)
         print ('Total number of Iterations = ', NumOfIter)
     
-        # set up acceptance rate array
+        # Set up acceptance rate array
         self.AcceptVals = list()
     
-        # initialise
+        # Initialise
         xI = self.xVals[0]
         I = 0
 
@@ -98,7 +98,6 @@ class BayesianLogReg:
         self.WeightedSum[0:M,:] = InitMean
         self.WeightedCov[0:M,:] = InitCov        
     
-        
         # Approximate Posterior Mean and Covariance as initial estimates
         self.ApprPostMean = InitMean
         self.ApprPostCov  = InitCov
@@ -117,11 +116,11 @@ class BayesianLogReg:
             # Generate proposals #
             ######################
             
-            # Load stream of points in [0,1]^d
-            U = xs[n*(N):(n+1)*(N),:]
+            # Load stream of points in [0,1]^(d+1)
+            U = xs[n*N:(n+1)*N,:]
             
             # Sample new proposed States according to multivariate t-distribution    
-            y = multivariate_t_rvs_custom_seed(U, self.ApprPostMean, \
+            y = multivariate_t_rvs_custom_seed(U[:,:d+1], self.ApprPostMean, \
                     StepSize*CholApprPostCov*np.sqrt((df-2.)/df), df=df)  
             
             # Add current state xI to proposals    
@@ -174,12 +173,6 @@ class BayesianLogReg:
             # Update Approximate Posterior Covariance
             if n> 2*d/N: # makes sure NumOfSamples > d for covariance estimate
                 self.ApprPostCov = np.mean(self.WeightedCov[:n+M+1,:,:], axis=0)
-            
-            # Compute cholesky decomposition and inverse
-            try:
-                CholApprPostCov = np.linalg.cholesky(self.ApprPostCov)
-            except:
-#                self.ApprPostCov = self.ApprPostCov + 1.*np.identity(d)
                 CholApprPostCov = np.linalg.cholesky(self.ApprPostCov)
 
             ##################################
@@ -187,7 +180,8 @@ class BayesianLogReg:
             ##################################
     
             # Sample N new states 
-            Is = rv_discrete(values=(range(N+1),Pstates)).rvs(size=N)
+            PstatesSum = np.cumsum(Pstates)
+            Is = np.searchsorted(PstatesSum, U[:,d+1:].flatten())
             xValsNew = Proposals[Is]
             self.xVals.append(xValsNew.copy())
     
