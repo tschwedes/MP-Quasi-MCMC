@@ -10,7 +10,7 @@ proposals and importance sampling applied to Bayesian linear regression.
 """
 
 import numpy as np
-from float_bit_operations import float_xor
+
 
 def SeedGen(d, PowerOfTwo, Stream):
 
@@ -52,13 +52,9 @@ def SeedGen(d, PowerOfTwo, Stream):
         
         xs = xs.reshape(UsedLength,d)
         xs = np.append(np.zeros(d)+1e-9,xs).reshape(UsedLength+1,d)
-        
-
         u_rand = np.random.uniform(0,1,d)
-        for j in range(d):
-            u_ = u_rand[j]
-            for k in range(UsedLength):
-                 xs[k,j] = float_xor(xs[k,j],u_)
+        xs_sh = xs + u_rand
+        xs = xs_sh - np.floor(xs_sh) 
 
     else:
         raise ValueError('Stream must be chose either as "iid" or as "cud"')

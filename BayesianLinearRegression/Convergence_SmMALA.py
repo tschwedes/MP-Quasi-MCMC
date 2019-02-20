@@ -22,7 +22,7 @@ import time
 from scipy.optimize import root
 from scipy import stats
 
-from BayesianLinReg import BayesianLinReg
+from BayesianLinReg_SmMALA import BayesianLinReg
 from Data import DataGen
 
 
@@ -39,22 +39,6 @@ except FileExistsError:
     
 
 
-# Values to try: OLD
-# d=1, 10, 25, 50, 100
-# StepSize = 1.0, 1.1, 1.1, 1.0, 1.0
-# BurnIn = 0, 0, 13, 14, 15
-    
-# d=10, 25, 50
-# StepSize=1.1, 1.1, 1.0
-# BurnIn=10, 11, 12    
-    
-    
-    
-# d=25, 50
-# StepSize=1., 1.
-# BurnIn=10, 11  
-    
-
 if __name__ == '__main__':
 
     #############################
@@ -62,18 +46,20 @@ if __name__ == '__main__':
     #############################  
     
     # Number of simulations
-    NumOfSim = 25
+    NumOfSim = 10
     # Define size of seed by powers of two
-    PowerOfTwoArray = np.arange(11,20)
+    PowerOfTwoArray = np.arange(11,21) #10 for N=3 and 19 for N=1023
     # Define number of proposed states
-    N_Array = np.array([4,8,16,32,64,128,256,512,1024])  
+    N_Array = np.array([3,7,15,31,63])  
     # Proposal step size
-    StepSize = 1.
+    StepSize = np.sqrt(2) 
+    # Proposal covariance scaling
+    CovScaling = 1    
     # Dimension
-    d = 25
+    d = 1
     # Obervation noise scaling
     alpha = 0.5
-    BurnInPowerOfTwo = 10
+
 
     #################
     # Generate Data #
@@ -95,7 +81,10 @@ if __name__ == '__main__':
     G_prior = sigmaSq / g * np.linalg.inv(np.dot(X.T,X))
     InvG_prior = np.linalg.inv(G_prior)
     Lambda0 = sigmaSq * InvG_prior
-
+    
+    # Fisher Information as constant metric tensor
+    FisherInfo = InvG_prior + alpha*np.dot(X.T,X)
+    InvFisherInfo = np.linalg.inv(FisherInfo) 
     
     # Analytical posterior mean and covariance
     PostMean = np.dot(np.linalg.pinv(np.dot(X.T,X) + Lambda0), np.dot(X.T,Obs))
@@ -114,33 +103,6 @@ if __name__ == '__main__':
     # Compute root
     RootRes = root(PostDeriv, np.zeros(d), tol=1e-12)
     x0 = RootRes.x  # Starting value      
-    BurnIn_InitMean = x0 # Starting Mean value
-
-    # Starting covariance as scaled prior covariance
-    BurnIn_InitCov = G_prior/(100*np.sqrt(d))
-
-
-
-
-
-    ###############
-    # Burn-In Run #
-    ###############
-
-    BurnInStepSize=1.1
-    BurnInN = 8
-    if BurnInPowerOfTwo>0:
-
-        BurnInQMC_BLR = BayesianLinReg(d, alpha, x0, BurnInN, StepSize, \
-                                 BurnInPowerOfTwo, BurnIn_InitMean, BurnIn_InitCov, Stream='cud')             
-    
-        # Estimates from BurnIn-run
-        QMC_Samples = BurnInQMC_BLR.GetSamples()
-        InitMean = BurnInQMC_BLR.GetIS_MeanEstimate(BurnInN)
-        InitCov = BurnInQMC_BLR.GetIS_CovEstimate(BurnInN)
-    else:
-        InitMean = x0
-        InitCov = BurnIn_InitCov
 
 
     ##################
@@ -179,10 +141,10 @@ if __name__ == '__main__':
             # Run simulation #
             ##################
             
-            QMC_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, \
-                             PowerOfTwo, InitMean, InitCov, Stream='cud', WeightIn=2**BurnInPowerOfTwo-1)           
-            PSR_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, \
-                             PowerOfTwo, InitMean, InitCov, Stream='iid', WeightIn=2**BurnInPowerOfTwo-1)     
+            QMC_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, CovScaling, \
+                             PowerOfTwo, Stream='cud')            
+            PSR_BLR = BayesianLinReg(d, alpha, x0, N, StepSize, CovScaling, \
+                             PowerOfTwo, Stream='iid')     
                   
             # Stopping time
             EndTime = time.time()
@@ -326,77 +288,6 @@ if __name__ == '__main__':
     #########################################################################
 
  
-    ####################################################################
-
-
-    #################################################################################
-    ### Linear Regression on log-log grahps for determination of convergence rate ###
-    #################################################################################
-   
-    x = np.log(N_Array)
-
-    #################################################
-    ### Compute empirical variance convergence rate #
-    #################################################
-       
-    # QMC
-    QMC_EmpiricalVar_y = np.log(QMC_EstimAverageVarTrace)
-    QMC_EmpiricalVarSlope, PSR_Intercept, PSR_rValue, PSR_pValue, PSR_StdErr = stats.linregress(x,QMC_EmpiricalVar_y)    
-    
-    # PSR
-    PSR_EmpiricalVar_y = np.log(PSR_EstimAverageVarTrace)    
-    PSR_EmpiricalVarSlope, QMC_Intercept, QMC_rValue, QMC_pValue, QMC_StdErr = stats.linregress(x,PSR_EmpiricalVar_y)    
-  
-    ###########################################
-    ### Compute sqaured bias convergence rate #
-    ###########################################
-   
-    # QMC
-    QMC_biassq_y = np.log(QMC_EstimAverageSquareBiasTrace)
-    QMC_biassq_slope, intercept, r_value, p_value, std_err = stats.linregress(x,QMC_biassq_y)    
-    
-    # PSR
-    PSR_biassq_y = np.log(PSR_EstimAverageSquareBiasTrace)    
-    PSR_biassq_slope, intercept, r_value, p_value, std_err = stats.linregress(x,PSR_biassq_y)      
-        
-    ##################################
-    ### Compute MSE convergence rate #
-    ##################################
-
-    # QMC
-    QMC_mse_y = np.log(QMC_MSE_Trace)
-    QMC_mse_slope, intercept, r_value, p_value, std_err = stats.linregress(x,QMC_mse_y)    
-    
-    # PSR
-    PSR_mse_y = np.log(PSR_MSE_Trace)    
-    PSR_mse_slope, intercept, r_value, p_value, std_err = stats.linregress(x,PSR_mse_y)
-
-
-
-        
-        
-        
-    def lighten_color(color, amount=0.5):
-        """
-        Lightens the given color by multiplying (1-luminosity) by the given amount.
-        Input can be matplotlib color string, hex string, or RGB tuple.
-    
-        Examples:
-        >> lighten_color('g', 0.3)
-        >> lighten_color('#F034A3', 0.6)
-        >> lighten_color((.3,.55,.1), 0.5)
-        """
-        import matplotlib.colors as mc
-        import colorsys
-        try:
-            c = mc.cnames[color]
-        except:
-            c = color
-        c = colorsys.rgb_to_hls(*mc.to_rgb(c))
-        return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])   
-    
-    
-    
     ###############################
     ### Empirica Variance PLOTS ###
     ###############################
@@ -415,39 +306,31 @@ if __name__ == '__main__':
                 markersize=3, label = 'PSR',elinewidth = 1, capsize = 3, \
                 color='darkred')
 
-    ax1.errorbar(N_Array, .2*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
+    ax1.errorbar(N_Array, .1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-    ax1.errorbar(N_Array, 1*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+    ax1.errorbar(N_Array, 0.3*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
                 label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
-    ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
-
-    ax1.text(N_Array[-2], QMC_EstimAverageVarTrace[-2], 
-             r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
-    ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
-             r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
-
-
-    ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+    ax1.set_xlabel('Number of Proposals $N$ \n (Step Size = %1.3f)' %StepSize)
 
     # Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel(r'Variance', color='k')
     ax1.tick_params('y', colors='k')
     ax1.set_xscale("log")
     ax1.set_yscale("log")
-    x1_ticks_labels = [4,8,16,32,64,128,256,512,1024] #[5,10,25,50,100,250,500,1000]
-    ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024])) #[5,10,25,50,100,250,500,1000]))
+    x1_ticks_labels = [100,250,500,1000,5000]
+    ax1.set_xticks(np.array([100,250,500,1000,5000]))
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
-    ax1.xaxis.set_minor_locator(plt.NullLocator())
+    ax1.grid(True,which="both")
 
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
     ax2.set_yscale("log")
-    ax2.errorbar(N_Array*NumOfIter, 0.2*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
+    ax2.errorbar(N_Array*NumOfIter, 0.1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-    ax2.errorbar(N_Array*NumOfIter, 1*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+    ax2.errorbar(N_Array*NumOfIter, 0.3*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
                 label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
-    x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+    x2_ticks_labels = np.array([10000, 25000, 100000, 500000])
     ax2.set_xticks(x2_ticks_labels)
     ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
     ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
@@ -541,39 +424,31 @@ if __name__ == '__main__':
                 markersize=3, label = r'PSR', elinewidth = 1, capsize = 3, \
                 color='darkred')   
 
-    ax1.errorbar(N_Array, 0.15*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+    ax1.errorbar(N_Array, 0.25*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-    ax1.errorbar(N_Array, 0.2*1e0*(N_Array*NumOfIter)**(-2.), fmt=':', \
+    ax1.errorbar(N_Array, 0.25*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
                 label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
-    ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+    ax1.set_xlabel('Number of Proposals $N$ \n (Step Size = %1.3f)' %StepSize)
 
     # Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel(r'$Bias^2$', color='k')
     ax1.tick_params('y', colors='k')
     ax1.set_xscale("log")
     ax1.set_yscale("log")
-    x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]#[5,10,20,50,100] 
-    ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024])) # #[5,10,20,50,100]
+    x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+    ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100]
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
-    ax1.xaxis.set_minor_locator(plt.NullLocator())
-
-    ax1.text(N_Array[-2], QMC_EstimAverageSquareBiasTrace[-2], 
-             r'${}$'.format("%.2f" % QMC_biassq_slope))    
-    ax1.text(N_Array[-2], PSR_EstimAverageSquareBiasTrace[-2], 
-             r'${}$'.format("%.2f" % PSR_biassq_slope))
-
-
-    ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+    ax1.grid(True,which="both")
 
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
     ax2.set_yscale("log")
-    ax2.errorbar(N_Array*NumOfIter, 0.15*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+    ax2.errorbar(N_Array*NumOfIter, 0.25*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                 label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-    ax2.errorbar(N_Array*NumOfIter, 0.2*1e0*(N_Array*NumOfIter)**(-2.), fmt=':', \
+    ax2.errorbar(N_Array*NumOfIter, 0.25*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
                 label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
-    x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+    x2_ticks_labels = np.array([5000, 25000, 100000, 500000])
     ax2.set_xticks(x2_ticks_labels)
     ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
     ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
@@ -607,9 +482,6 @@ if __name__ == '__main__':
                 label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
     ax1.set_xlabel('Number of Proposals $N$ \n (Step Size = %1.3f)' %StepSize)
 
-
-
-
     # Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel(r'$MSE$', color='k')
     ax1.tick_params('y', colors='k')
@@ -619,7 +491,7 @@ if __name__ == '__main__':
     ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100]
     ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
     ax1.legend(loc='best', fontsize=11)
-#    ax1.grid(True,which="both")
+    ax1.grid(True,which="both")
         
     ax2 = ax1.twiny()
     ax2.set_xscale("log")
@@ -636,6 +508,54 @@ if __name__ == '__main__':
     fig.tight_layout()
 #    plt.show()
     plt.savefig('{}/MSE_{}mcmc.eps'.format(DirName, NumOfSim), format='eps')
+
+
+
+    ####################################################################
+
+
+    #################################################################################
+    ### Linear Regression on log-log grahps for determination of convergence rate ###
+    #################################################################################
+   
+    x = np.log(N_Array)[:-1]
+
+    #################################################
+    ### Compute empirical variance convergence rate #
+    #################################################
+       
+    # QMC
+    QMC_EmpiricalVar_y = np.log(QMC_EstimAverageVarTrace)[:-1]
+    QMC_EmpiricalVarSlope, PSR_Intercept, PSR_rValue, PSR_pValue, PSR_StdErr = stats.linregress(x,QMC_EmpiricalVar_y)    
+    
+    # PSR
+    PSR_EmpiricalVar_y = np.log(PSR_EstimAverageVarTrace)  [:-1]  
+    PSR_EmpiricalVarSlope, QMC_Intercept, QMC_rValue, QMC_pValue, QMC_StdErr = stats.linregress(x,PSR_EmpiricalVar_y)    
+  
+    ###########################################
+    ### Compute sqaured bias convergence rate #
+    ###########################################
+   
+    # QMC
+    QMC_biassq_y = np.log(QMC_EstimAverageSquareBiasTrace)[:-1]
+    QMC_biassq_slope, intercept, r_value, p_value, std_err = stats.linregress(x,QMC_biassq_y)    
+    
+    # PSR
+    PSR_biassq_y = np.log(PSR_EstimAverageSquareBiasTrace)[:-1]    
+    PSR_biassq_slope, intercept, r_value, p_value, std_err = stats.linregress(x,PSR_biassq_y)      
+        
+    ##################################
+    ### Compute MSE convergence rate #
+    ##################################
+
+    # QMC
+    QMC_mse_y = np.log(QMC_MSE_Trace)[:-1]
+    QMC_mse_slope, intercept, r_value, p_value, std_err = stats.linregress(x,QMC_mse_y)    
+    
+    # PSR
+    PSR_mse_y = np.log(PSR_MSE_Trace)[:-1]    
+    PSR_mse_slope, intercept, r_value, p_value, std_err = stats.linregress(x,PSR_mse_y)
+
 
 
 
@@ -671,12 +591,10 @@ if __name__ == '__main__':
 
     # Miscellaneous  
     np.savetxt('{}/N_Array.txt'.format(DirName), N_Array)
-    np.savetxt('{}/dimension.txt'.format(DirName), np.array([d]))    
     np.savetxt('{}/cpu_time.txt'.format(DirName), np.array([EndTimeAll - StartTimeAll]))
     np.savetxt('{}/NumOfIter.txt'.format(DirName), np.array([NumOfIter]))
     np.savetxt('{}/StepSize.txt'.format(DirName), np.array([StepSize]))
-    np.savetxt('{}/BurnInPowerOfTwo.txt'.format(DirName), np.array([BurnInPowerOfTwo]))
-
+    np.savetxt('{}/CovScaling.txt'.format(DirName), np.array([CovScaling]))
 
     # Empirical variance and MSE reductions    
     np.savetxt('{}/VarianceReductions.txt'.format(DirName), PSR_EstimAverageVarTrace\
@@ -694,14 +612,3 @@ if __name__ == '__main__':
     # MSE slope
     np.savetxt('{}/QMC_mse_slope.txt'.format(DirName), np.array([QMC_mse_slope]))
     np.savetxt('{}/PSR_mse_slope.txt'.format(DirName), np.array([PSR_mse_slope]))    
-
-
-
-
-
-
-
-
-
-
-
