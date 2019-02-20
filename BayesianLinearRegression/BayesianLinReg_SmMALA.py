@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm, rv_discrete
 from Data import DataGen
 from Seed import SeedGen
-
+#from Seed_digShift import SeedGen
 
 class BayesianLinReg:
     

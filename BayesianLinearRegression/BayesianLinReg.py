@@ -14,13 +14,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from Data import DataGen
 from Seed import SeedGen
+#from Seed_digShift import SeedGen
 
-
-def fun(x):
-    return np.sum(x,axis=1)
-
-def fun1(x):
-    return np.exp(np.sum(x*np.arange(1.,x.shape[1]+1.)**(-2),axis=1))
 
 
 class BayesianLinReg:
@@ -109,7 +104,6 @@ class BayesianLinReg:
         self.WeightedFunSum = np.zeros((NumOfIter+M,d))
         self.WeightedSum[0:M,:] = InitMean
         self.WeightedCov[0:M,:] = InitCov 
-        self.WeightedFunSum[0:M,:] = fun([InitMean])
         
 
         # Approximate Posterior Mean and Covariance as initial estimates

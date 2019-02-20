@@ -695,13 +695,3 @@ if __name__ == '__main__':
     np.savetxt('{}/QMC_mse_slope.txt'.format(DirName), np.array([QMC_mse_slope]))
     np.savetxt('{}/PSR_mse_slope.txt'.format(DirName), np.array([PSR_mse_slope]))    
 
-
-
-
-
-
-
-
-
-
-
