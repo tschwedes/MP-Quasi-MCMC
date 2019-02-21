@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 19 11:58:42 2019
-
-@author: Tobias Schwedes
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Sep 26 15:25:19 2018
+Created on Thu Feb 21 20:32:12 2019
 
 @author: Tobias Schwedes
 """
@@ -17,8 +9,7 @@ Created on Wed Sep 26 15:25:19 2018
 """
 Script to analyse the convergence in Empirical Variance and Squared Bias
 (as well as combined = MSE) for importance sampling MP-MCMC driven by a
-IID seed VS. by a CUD seed. The underlying sampling method makes use of
-Riemannian manifold Metropolis-Adjunsted Langevin proposals!
+IID seed VS. by a CUD seed.
 
 """
 

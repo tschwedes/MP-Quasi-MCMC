@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct  1 15:31:25 2018
+Created on Thu Feb 21 20:32:27 2019
 
 @author: Tobias Schwedes
 
-Script to implement Bayesian linear (just standard Gaussian) regression using importance sampling
+Script to implement estimating standard Gaussian using importance sampling
 for multiple proposal Quasi-MCMC.
 """
 
@@ -21,26 +21,26 @@ class BayesianLinReg:
                  InitMean, InitCov, Stream):
     
         """
-        Implements the Bayesian Linear Regression based on 
-        Data set "Data.txt" by using multiple proposal quasi MCMC with 
+        Implements estimating the posterior mean of a standard Gaussian
+        by using multiple proposal quasi MCMC with 
         Importance Sampling (IS-MP-QMCMC)
     
         Inputs:
         -------   
         d               - int 
                         dimension of posterior    
-        alpha           - float
-                        Standard deviation for Observation noise
         x0              - array_like
                         d-dimensional array; starting value
         N               - int 
                         number of proposals per iteration
         StepSize        - float 
-                        step size for proposed jump in mean
-        CovScaling      - float 
-                        scaling of proposal covariance
+                        step size for proposed jump in mean               
         PowerOfTwo      - int
                         defines size S of seed by S=2**PowerOfTwo-1
+        InitMean        - array_like
+                        defined mean of independent proposal kernel
+        InitCov         - array_like 
+                        defines covariance of independent proposal kernel                    
         Stream          - string
                         either 'cud' or 'iid'; defining what seed is used
         """
