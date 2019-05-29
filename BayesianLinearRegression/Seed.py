@@ -21,8 +21,6 @@ def SeedGen(d, PowerOfTwo, Stream):
     -------   
     d               - int
                     dimension of posterior    
-    alpha           - float
-                    Standard deviation for observation noise
     PowerOfTwo      - int in [10,23]
                     defines size S of seed by S=2**PowerOfTwo-1
     Stream          - string
@@ -51,7 +49,7 @@ def SeedGen(d, PowerOfTwo, Stream):
             xs = np.append(xs, np.roll(TrimmedCuds,-i))        
         
         xs = xs.reshape(UsedLength,d)
-        xs = np.append(np.zeros(d)+1e-9,xs).reshape(UsedLength+1,d)
+#        xs = np.append(np.zeros(d)+1e-9,xs).reshape(UsedLength+1,d)
         u_rand = np.random.uniform(0,1,d)
         xs_sh = xs + u_rand
         xs = xs_sh - np.floor(xs_sh) 

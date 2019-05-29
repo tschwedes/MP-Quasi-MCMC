@@ -16,6 +16,16 @@ class DataGen:
     
     def __init__(self, alpha, d):
         
+
+        """    
+        Inputs:
+        ------
+        alpha           - float 
+                        Obervation noise scaling   
+        d               - int 
+                        dimension of posterior    
+        """                
+        
         np.random.seed(0)
         
         # Create design matrix
@@ -35,17 +45,17 @@ class DataGen:
         
         np.random.seed()  
 
-    def GetNumOfSamples(self):
+    def getNumOfSamples(self):
         return self.n_samples
     
-    def GetWeights(self):
+    def getWeights(self):
         return self.w
 
-    def GetNoise(self):
+    def getNoise(self):
         return self.noise
 
-    def GetObservations(self):
+    def getObservations(self):
         return self.obs
 
-    def GetDesignMatrix(self):
+    def getDesignMatrix(self):
         return self.X

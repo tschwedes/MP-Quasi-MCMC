@@ -10,7 +10,7 @@ Created on Wed Sep 26 15:25:19 2018
 Script to analyse the convergence in Empirical Variance and Squared Bias
 (as well as combined = MSE) for importance sampling MP-MCMC driven by a
 IID seed VS. by a CUD seed. The underlying sampling method makes use of
-Riemannian manifold Metropolis-Adjunsted Langevin proposals!
+SmMALA proposals.
 
 """
 
@@ -66,9 +66,9 @@ if __name__ == '__main__':
     #################
 
     Data            = DataGen(alpha, d)
-    X               = Data.GetDesignMatrix()
-    Obs             = Data.GetObservations()
-    NumOfSamples    = Data.GetNumOfSamples()
+    X               = Data.getDesignMatrix()
+    Obs             = Data.getObservations()
+    NumOfSamples    = Data.getNumOfSamples()
     
 
     ######################################################
@@ -157,21 +157,21 @@ if __name__ == '__main__':
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             
             # Acceptance rate of MP-(Q)MCMC
-            QMC_AcceptRate = QMC_BLR.GetAcceptRate(BurnIn)
+            QMC_AcceptRate = QMC_BLR.getAcceptRate(BurnIn)
             print ("QMC Acceptance Rate = ", QMC_AcceptRate)
-            PSR_AcceptRate = PSR_BLR.GetAcceptRate(BurnIn)
+            PSR_AcceptRate = PSR_BLR.getAcceptRate(BurnIn)
             print ("PSR Acceptance Rate = ", PSR_AcceptRate)
 
 
             ################## QMC #####################
 
             # Compute estimated IS mean
-            QMC_EstimArray[p,j,:] = QMC_BLR.GetIS_MeanEstimate(N, BurnIn)
+            QMC_EstimArray[p,j,:] = QMC_BLR.getIS_MeanEstimate(N, BurnIn)
 
             ################## PSR #####################
 
             # Compute estimated IS mean
-            PSR_EstimArray[p,j,:] = PSR_BLR.GetIS_MeanEstimate(N, BurnIn)
+            PSR_EstimArray[p,j,:] = PSR_BLR.getIS_MeanEstimate(N, BurnIn)
 
 
     ###############################

@@ -5,8 +5,9 @@ Created on Mon Oct  1 15:31:25 2018
 
 @author: Tobias Schwedes
 
-Script to implement Bayesian linear regression using importance sampling
-for multiple proposal Quasi-MCMC.
+Script to implement Bayesian linear regression using importance sampling /
+Rao-Blackwellisation for multiple proposal Quasi-MCMC with an independent 
+proposal sampler that learns adaptively from past samples.
 """
 
 import numpy as np
@@ -17,16 +18,16 @@ from Seed import SeedGen
 #from Seed_digShift import SeedGen
 
 
-
 class BayesianLinReg:
     
     def __init__(self, d, alpha, x0, N, StepSize, PowerOfTwo, \
                  InitMean, InitCov, Stream, WeightIn=0):
     
         """
-        Implements the Bayesian Linear Regression based on 
-        Data set "Data.txt" by using multiple proposal quasi MCMC with 
-        Importance Sampling (IS-MP-QMCMC)
+        Implements the Bayesian Linear Regression based on Data set "Data.txt" 
+        by using importance sampling / Rao-Blackwellisation for multiple 
+        proposal Quasi-MCMC with an independent proposal sampler that learns 
+        adaptively from past samples.
     
         Inputs:
         -------   
@@ -40,12 +41,17 @@ class BayesianLinReg:
                         number of proposals per iteration
         StepSize        - float 
                         step size for proposed jump in mean
-        CovScaling      - float 
-                        scaling of proposal covariance
         PowerOfTwo      - int
                         defines size S of seed by S=2**PowerOfTwo-1
+        InitMean        - array_like 
+                        d-dimensional initial proposal mean
+        InitCov         - array_like
+                        dxd-dimensional initial proposal covariance
         Stream          - string
                         either 'cud' or 'iid'; defining what seed is used
+        WeightIn        - float
+                        if BurnIn-run existed, weight initial esitmates
+                        by int(WeightIn/N)-times                
         """
     
         #################
@@ -53,9 +59,9 @@ class BayesianLinReg:
         #################
         
         Data            = DataGen(alpha, d)
-        X               = Data.GetDesignMatrix()
-        Obs             = Data.GetObservations()
-        NumOfSamples    = Data.GetNumOfSamples()
+        X               = Data.getDesignMatrix()
+        Obs             = Data.getObservations()
+        NumOfSamples    = Data.getNumOfSamples()
         
         ##################################
         # Choose stream for Markoc Chain #
@@ -204,7 +210,7 @@ class BayesianLinReg:
             xI = Proposals[I,:]
     
     
-    def GetSamples(self, BurnIn=0):
+    def getSamples(self, BurnIn=0):
         
         """
         Compute samples from posterior from MP-QMCMC
@@ -225,7 +231,7 @@ class BayesianLinReg:
         return Samples
        
         
-    def GetAcceptRate(self, BurnIn=0):
+    def getAcceptRate(self, BurnIn=0):
         
         """
         Compute acceptance rate of MP-QMCMC
@@ -247,11 +253,18 @@ class BayesianLinReg:
         return AcceptRate
 
      
-    def GetIS_MeanEstimate(self, N, BurnIn=0):
+    def getIS_MeanEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling estimate
-             
+
+        Inputs:
+        -------   
+        N               - int 
+                        number of proposals per iteration      
+        BurnIn          - int
+                        Burn-In period  
+    
         Outputs:
         -------
         WeightedMean    - array_like
@@ -263,11 +276,18 @@ class BayesianLinReg:
         return WeightedMean
     
 
-    def GetIS_FunMeanEstimate(self, N, BurnIn=0):
+    def getIS_FunMeanEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling estimate
-             
+
+        Inputs:
+        -------   
+        N               - int 
+                        number of proposals per iteration      
+        BurnIn          - int
+                        Burn-In period  
+                
         Outputs:
         -------
         WeightedMean    - array_like
@@ -279,11 +299,17 @@ class BayesianLinReg:
         return WeightedMean    
   
 
-    def GetIS_CovEstimate(self, N, BurnIn=0):
+    def getIS_CovEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling covariance estimate
-        
+
+        Inputs:
+        -------   
+        N               - int 
+                        number of proposals per iteration      
+        BurnIn          - int
+                        Burn-In period  
         
         Outputs:
         -------
@@ -295,7 +321,7 @@ class BayesianLinReg:
         return WeightedCov    
     
       
-    def GetMarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
+    def getMarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
         
         """
         Plot histogram of marginal distribution for posterior samples using 
@@ -315,7 +341,7 @@ class BayesianLinReg:
 
         Fig = plt.figure()
         SubPlot = Fig.add_subplot(111)
-        SubPlot.hist(self.GetSamples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
+        SubPlot.hist(self.getSamples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
         
         return Fig
 

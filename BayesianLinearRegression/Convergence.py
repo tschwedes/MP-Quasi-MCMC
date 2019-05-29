@@ -39,20 +39,11 @@ except FileExistsError:
     
 
 
-# Values to try: OLD
-# d=1, 10, 25, 50, 100
-# StepSize = 1.0, 1.1, 1.1, 1.0, 1.0
-# BurnIn = 0, 0, 13, 14, 15
-    
+# Values to try:
 # d=10, 25, 50
 # StepSize=1.1, 1.1, 1.0
 # BurnIn=10, 11, 12    
     
-    
-    
-# d=25, 50
-# StepSize=1., 1.
-# BurnIn=10, 11  
     
 
 if __name__ == '__main__':
@@ -62,17 +53,18 @@ if __name__ == '__main__':
     #############################  
     
     # Number of simulations
-    NumOfSim = 25
+    NumOfSim = 10
     # Define size of seed by powers of two
-    PowerOfTwoArray = np.arange(11,20)
+    PowerOfTwoArray = np.arange(10,20)
     # Define number of proposed states
-    N_Array = np.array([4,8,16,32,64,128,256,512,1024])  
+    N_Array = np.array([4,8,16,32,64])#,128,256])#,512,1024])  
     # Proposal step size
-    StepSize = 1.
+    StepSize = 1.2
     # Dimension
-    d = 25
+    d = 1
     # Obervation noise scaling
     alpha = 0.5
+    # Power of two determining the number of BurnIn discarded samples
     BurnInPowerOfTwo = 10
 
     #################
@@ -80,9 +72,9 @@ if __name__ == '__main__':
     #################
 
     Data            = DataGen(alpha, d)
-    X               = Data.GetDesignMatrix()
-    Obs             = Data.GetObservations()
-    NumOfSamples    = Data.GetNumOfSamples()
+    X               = Data.getDesignMatrix()
+    Obs             = Data.getObservations()
+    NumOfSamples    = Data.getNumOfSamples()
     
 
     ######################################################
@@ -135,9 +127,9 @@ if __name__ == '__main__':
                                  BurnInPowerOfTwo, BurnIn_InitMean, BurnIn_InitCov, Stream='cud')             
     
         # Estimates from BurnIn-run
-        QMC_Samples = BurnInQMC_BLR.GetSamples()
-        InitMean = BurnInQMC_BLR.GetIS_MeanEstimate(BurnInN)
-        InitCov = BurnInQMC_BLR.GetIS_CovEstimate(BurnInN)
+        QMC_Samples = BurnInQMC_BLR.getSamples()
+        InitMean = BurnInQMC_BLR.getIS_MeanEstimate(BurnInN)
+        InitCov = BurnInQMC_BLR.getIS_CovEstimate(BurnInN)
     else:
         InitMean = x0
         InitCov = BurnIn_InitCov
@@ -195,21 +187,21 @@ if __name__ == '__main__':
             print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             
             # Acceptance rate of MP-(Q)MCMC
-            QMC_AcceptRate = QMC_BLR.GetAcceptRate(BurnIn)
+            QMC_AcceptRate = QMC_BLR.getAcceptRate(BurnIn)
             print ("QMC Acceptance Rate = ", QMC_AcceptRate)
-            PSR_AcceptRate = PSR_BLR.GetAcceptRate(BurnIn)
+            PSR_AcceptRate = PSR_BLR.getAcceptRate(BurnIn)
             print ("PSR Acceptance Rate = ", PSR_AcceptRate)
 
 
             ################## QMC #####################
 
             # Compute estimated IS mean
-            QMC_EstimArray[p,j,:] = QMC_BLR.GetIS_MeanEstimate(N, BurnIn)
+            QMC_EstimArray[p,j,:] = QMC_BLR.getIS_MeanEstimate(N, BurnIn)
 
             ################## PSR #####################
 
             # Compute estimated IS mean
-            PSR_EstimArray[p,j,:] = PSR_BLR.GetIS_MeanEstimate(N, BurnIn)
+            PSR_EstimArray[p,j,:] = PSR_BLR.getIS_MeanEstimate(N, BurnIn)
 
 
     ###############################
