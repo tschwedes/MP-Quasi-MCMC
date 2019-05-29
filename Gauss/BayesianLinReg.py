@@ -5,8 +5,8 @@ Created on Thu Feb 21 20:32:27 2019
 
 @author: Tobias Schwedes
 
-Script to implement estimating standard Gaussian using importance sampling
-for multiple proposal Quasi-MCMC.
+Script to implement estimating mean integral for a standard Gaussian using 
+importance sampling / Rao-Blackwellisation for multiple proposal Quasi-MCMC.
 """
 
 import numpy as np

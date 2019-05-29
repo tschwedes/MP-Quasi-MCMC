@@ -9,7 +9,7 @@ Created on Thu Feb 21 20:32:12 2019
 """
 Script to analyse the convergence in Empirical Variance and Squared Bias
 (as well as combined = MSE) for importance sampling MP-MCMC driven by a
-IID seed VS. by a CUD seed.
+IID seed VS. by a CUD seed, in estimating Gaussian mean values.
 
 """
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # Define size of seed by powers of two
     PowerOfTwoArray = np.arange(11,20)
     # Define number of proposed states
-    N_Array = np.array([4,8,16,32,64])#,128,256,512,1024])  
+    N_Array = np.array([4,8,16])#,128,256,512,1024])  
     # Proposal step size
     StepSize = 2.4
     # Dimension
