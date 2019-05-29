@@ -21,8 +21,6 @@ def SeedGen(d, PowerOfTwo, Stream):
     -------   
     d               - int 
                     dimension of posterior    
-    alpha           - float
-                    Standard deviation for observation noise
     PowerOfTwo      - int in [10,23]
                     defines size S of seed by S=2**PowerOfTwo-1
     Stream          - string 

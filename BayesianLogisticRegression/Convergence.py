@@ -33,10 +33,10 @@ if __name__ == '__main__':
     NumOfSim = 25
     
     # Define size of seed by powers of two
-    PowerOfTwoArray = np.arange(11,20) #11 for N=4 and 18 for N=1024
+    PowerOfTwoArray = np.arange(11,24) #11 for N=4 and 18 for N=1024
     
     # Define number of proposed states
-    N_Array = np.array([4,8,16,32,64,128,256,512,1024])
+    N_Array = np.array([4,8,16]) #,32,64])#,128,256,512,1024]) #
     
     # Degree of freedom of student proposal sampler (df>>1 close to gaussian)
     df = 250.
@@ -45,13 +45,13 @@ if __name__ == '__main__':
     alpha = 100.
     
     # Specify data set
-    Cases = ['australian'] #['ripley', 'pima', 'heart', 'australian', 'german']
+    Cases = ['ripley'] #'pima', 'heart', 'australian', 'german']
    
     # Specify StepSizes for individual data set (according to StepSize.py)
-    StepSizes = np.array([1.1]) #np.array([1.2, 1.05, 1.15, 1.1, 1.15])
+    StepSizes = np.array([1.2]) #np.array([1.2, 1.05, 1.15, 1.1, 1.15])
 
     # Specify BurnIn for individual data set
-    AllBurnInPowerOfTwo = [13] #[12, 12, 13, 13, 14]
+    AllBurnInPowerOfTwo = [10] #[10, 12, 13, 13, 13]
     
 
     ##########################################################################
@@ -100,10 +100,10 @@ if __name__ == '__main__':
         #################
     
         Data        = DataLoad(Case)
-        d           = Data.GetDimension()
-        XX          = Data.GetDesignMatrix()
-        t           = Data.GetResponses()
-        m           = Data.GetNumOfSamples()
+        d           = Data.getDimension()
+        XX          = Data.getDesignMatrix()
+        t           = Data.getResponses()
+        m           = Data.getNumOfSamples()
         
         
         ######################################################
@@ -150,11 +150,11 @@ if __name__ == '__main__':
              InitMean, InitCov, df, Case, alpha, Stream='cud')            
 
         # Estimates from BurnIn-run
-        QMC_Samples = BurnInQMC_BLR.GetSamples()
-        QMC_IS_MeanEstimate = BurnInQMC_BLR.GetIS_MeanEstimate(BurnInN)
-        QMC_IS_CovEstimate = BurnInQMC_BLR.GetIS_CovEstimate(BurnInN)
+#        QMC_Samples = BurnInQMC_BLR.getSamples()
+        QMC_IS_MeanEstimate = BurnInQMC_BLR.getIS_MeanEstimate(BurnInN)
+        QMC_IS_CovEstimate = BurnInQMC_BLR.getIS_CovEstimate(BurnInN)
         
-    
+        
         ##################
         # Initialisation #
         ##################
@@ -207,21 +207,21 @@ if __name__ == '__main__':
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
                 
                 # Acceptance rate of MP-(Q)MCMC
-                QMC_AcceptRate = QMC_BLR.GetAcceptRate()
+                QMC_AcceptRate = QMC_BLR.getAcceptRate()
                 print ("QMC Acceptance Rate = ", QMC_AcceptRate)
-                PSR_AcceptRate = PSR_BLR.GetAcceptRate()
+                PSR_AcceptRate = PSR_BLR.getAcceptRate()
                 print ("PSR Acceptance Rate = ", PSR_AcceptRate)
     
     
                 ################## QMC #####################
     
                 # Compute estimated IS mean
-                QMC_EstimArray[p,j,:] = QMC_BLR.GetIS_MeanEstimate(N, WeightIn)
+                QMC_EstimArray[p,j,:] = QMC_BLR.getIS_MeanEstimate(N, WeightIn)
     
                 ################## PSR #####################
     
                 # Compute estimated IS mean
-                PSR_EstimArray[p,j,:] = PSR_BLR.GetIS_MeanEstimate(N, WeightIn)
+                PSR_EstimArray[p,j,:] = PSR_BLR.getIS_MeanEstimate(N, WeightIn)
     
         
         ###############################
@@ -337,7 +337,7 @@ if __name__ == '__main__':
         print ("Overall CPU time =", TimeCase)
     
         #########################################################################
-        A = -exe
+#        A = -exe
      
         ###############################
         ### Empirica Variance PLOTS ###
@@ -504,7 +504,7 @@ if __name__ == '__main__':
         ax2.errorbar(N_Array*NumOfIter, 0.25*1e-1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                     label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
         ax2.errorbar(N_Array*NumOfIter, 0.25*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
-                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+                    label = '$\sim n^{-2}$', elinewidth = 1, color='0.5')
         x2_ticks_labels = np.array([5000, 25000, 100000, 500000])
         ax2.set_xticks(x2_ticks_labels)
         ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
@@ -649,11 +649,11 @@ if __name__ == '__main__':
     
         # Miscellaneous  
         np.savetxt('results/{}/N_Array.txt'.format(Case), N_Array)
-        np.savetxt('results/{}/cpu_time.txt'.format(Case), np.array([TimeCase]))
+#        np.savetxt('results/{}/cpu_time.txt'.format(Case), np.array([TimeCase]))
         np.savetxt('results/{}/NumOfIter.txt'.format(Case), np.array([NumOfIter]))
         np.savetxt('results/{}/StepSize.txt'.format(Case), np.array([StepSize]))
         np.savetxt('results/{}/BurnInPowerOfTwo.txt'.format(Case), np.array([BurnInPowerOfTwo]))
-        np.savetxt('results/{}/DegreeOfFreedom.txt'.format(Case), np.array([df]))
+#        np.savetxt('results/{}/DegreeOfFreedom.txt'.format(Case), np.array([df]))
 
         # Empirical variance and MSE reductions    
         np.savetxt('results/{}/VarianceReductions.txt'.format(Case), PSR_EstimAverageVarTrace\
@@ -679,7 +679,15 @@ if __name__ == '__main__':
         
         
         QMC_EstimArray = np.load('QMC_EstimArray.npy')
-        PSR_EstimArray = np.load('PSR_EstimArray.npy')       
+        PSR_EstimArray = np.load('PSR_EstimArray.npy')  
+        
+        
+        QMC_EstimAverageVarTrace = np.loadtxt('QMC_EstimAverageVarTrace.txt')
+        QMC_VarEstimBatchVarTrace = np.loadtxt('QMC_VarEstimBatchVarTrace.txt')
+        QMC_EmpiricalVarSlope = np.loadtxt('QMC_EmpiricalVarSlope.txt')
+        PSR_EstimAverageVarTrace = np.loadtxt('PSR_EstimAverageVarTrace.txt')
+        PSR_VarEstimBatchVarTrace = np.loadtxt('PSR_VarEstimBatchVarTrace.txt')
+        PSR_EmpiricalVarSlope = np.loadtxt('PSR_EmpiricalVarSlope.txt')
         
         mh_estimVar_Vec_e_trace = np.loadtxt('mh_estimVar_Vec_e_trace.txt')
         mh_estim_var_trace = np.loadtxt('mh_estim_var_trace.txt')     
@@ -692,17 +700,39 @@ if __name__ == '__main__':
         mh_estimVar_Vec_e_trace/QMC_EstimAverageVarTrace
         
         
+        
+    def lighten_color(color, amount=0.5):
+        """
+        Lightens the given color by multiplying (1-luminosity) by the given amount.
+        Input can be matplotlib color string, hex string, or RGB tuple.
+    
+        Examples:
+        >> lighten_color('g', 0.3)
+        >> lighten_color('#F034A3', 0.6)
+        >> lighten_color((.3,.55,.1), 0.5)
+        """
+        import matplotlib.colors as mc
+        import colorsys
+        try:
+            c = mc.cnames[color]
+        except:
+            c = color
+        c = colorsys.rgb_to_hls(*mc.to_rgb(c))
+        return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])   
+        
+        
+  
+        # GERMAN      
         fig, ax1 = plt.subplots()
         fig.tight_layout()
-    
-       
+
         ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
                     yerr=2*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
-                    markersize=3, label = 'Ad. IS-MP-QMCMC',elinewidth = 1, capsize = 3, \
+                    markersize=3, label = 'AIS-MP-QMCMC',elinewidth = 1, capsize = 3, \
                     color='darkblue')#color = '0.25')
         ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
                     yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
-                    markersize=3, label = 'Ad. IS-MP-MCMC',elinewidth = 1, capsize = 3, \
+                    markersize=3, label = 'AIS-MP-MCMC',elinewidth = 1, capsize = 3, \
                     color='darkred')#color = '0.25')
         ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
                     yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
@@ -716,12 +746,10 @@ if __name__ == '__main__':
                  r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
         ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
                  r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
-
-
-    
+  
         ax1.errorbar(N_Array, 1*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                     label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-        ax1.errorbar(N_Array, 1*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+        ax1.errorbar(N_Array, 5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
                     label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
         ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
     
@@ -749,7 +777,7 @@ if __name__ == '__main__':
         ax2.set_yscale("log")
         ax2.errorbar(N_Array*NumOfIter, 1.*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
                     label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
-        ax2.errorbar(N_Array*NumOfIter, 1*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+        ax2.errorbar(N_Array*NumOfIter, 5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
                     label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
         x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
         ax2.set_xticks(x2_ticks_labels)
@@ -762,28 +790,448 @@ if __name__ == '__main__':
 
         fig.tight_layout()
     #    plt.show()
-        plt.savefig('results/{}/emprVar_{}mcmc2.eps'.format(Case, NumOfSim), format='eps')
+        plt.savefig('results/{}/emprVar_{}mcmc1.eps'.format(Case, NumOfSim), format='eps')
 
 
-        
-        
-        
-def lighten_color(color, amount=0.5):
-    """
-    Lightens the given color by multiplying (1-luminosity) by the given amount.
-    Input can be matplotlib color string, hex string, or RGB tuple.
 
-    Examples:
-    >> lighten_color('g', 0.3)
-    >> lighten_color('#F034A3', 0.6)
-    >> lighten_color((.3,.55,.1), 0.5)
-    """
-    import matplotlib.colors as mc
-    import colorsys
-    try:
-        c = mc.cnames[color]
-    except:
-        c = color
-    c = colorsys.rgb_to_hls(*mc.to_rgb(c))
-    return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])   
+
+#
+#        # RIPLEY
+#        fig, ax1 = plt.subplots()
+#        fig.tight_layout()
+#
+#        ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
+#                    yerr=2*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
+#                    markersize=3, label = 'AIS-MP-QMCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkblue')#color = '0.25')
+#        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'AIS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkred')#color = '0.25')
+#        ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
+#                    markersize=3, label = 'M-H SmMALA',elinewidth = 1, capsize = 3, \
+#                    color='darkorange')#color = '0.25')           
+#        ax1.errorbar(N_Array, mh_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_estim_var_trace), fmt=':o', \
+#                    markersize=3, label = 'M-H',elinewidth = 1, capsize = 3, \
+#                    color='darkgreen')#color = '0.25')
+#        ax1.text(N_Array[-2], QMC_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
+#        ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
+#  
+#        ax1.errorbar(N_Array, 2*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax1.errorbar(N_Array, 5*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+#    
+#        # Make the y-axis label, ticks and tick labels match the line color.
+#        ax1.set_ylabel(r'Variance', color='k')
+##        ax1.tick_params('y', colors='k')
+#        ax1.set_xscale("log")
+#        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+##        x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+##        ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100] 
+#        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+#        
+##        ax1.tick_params(axis='x',reset=False,which='x')#,length=8,width=2)
+#        ax1.xaxis.set_minor_locator(plt.NullLocator()) #plt.FixedLocator([4,8,16,32,64,128,256,512,1024]))
+#
+#
+#        ax1.legend(loc='best', fontsize=8.75)
+#        ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+##        ax1.grid(True,which="major",axis='y',linewidth=0.5,color=lighten_color('grey', 0.25))
+#        
+#        ax2 = ax1.twiny()
+#        ax2.set_xscale("log")
+#        ax2.set_yscale("log")
+#        ax2.errorbar(N_Array*NumOfIter, 2.*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax2.errorbar(N_Array*NumOfIter, 5*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+#        ax2.set_xticks(x2_ticks_labels)
+#        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+#        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+##        ax2.set_axisbelow(True)
+##        ax2.grid(True,which="both",axis='x')
+#
+##        ax2.text(100, 20, r'$\cos(2 \pi t) \exp(-t)$')#, fontdict=font)    
+#
+#        fig.tight_layout()
+#    #    plt.show()
+#        plt.savefig('results/{}/emprVar_{}mcmc.eps'.format(Case, NumOfSim), format='eps')
+
+
+
+
+#
+#        # PIMA
+#        fig, ax1 = plt.subplots()
+#        fig.tight_layout()
+#
+#        ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
+#                    markersize=3, label = 'AIS-MP-QMCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkblue')#color = '0.25')
+#        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'AIS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkred')#color = '0.25')
+#        ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
+#                    markersize=3, label = 'M-H SmMALA',elinewidth = 1, capsize = 3, \
+#                    color='darkorange')#color = '0.25')           
+#        ax1.errorbar(N_Array, mh_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_estim_var_trace), fmt=':o', \
+#                    markersize=3, label = 'M-H',elinewidth = 1, capsize = 3, \
+#                    color='darkgreen')#color = '0.25')
+#        ax1.text(N_Array[-2], QMC_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
+#        ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
+#  
+#        ax1.errorbar(N_Array, 2*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax1.errorbar(N_Array, 4*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+#    
+#        # Make the y-axis label, ticks and tick labels match the line color.
+#        ax1.set_ylabel(r'Variance', color='k')
+##        ax1.tick_params('y', colors='k')
+#        ax1.set_xscale("log")
+#        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+##        x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+##        ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100] 
+#        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+#        
+##        ax1.tick_params(axis='x',reset=False,which='x')#,length=8,width=2)
+#        ax1.xaxis.set_minor_locator(plt.NullLocator()) #plt.FixedLocator([4,8,16,32,64,128,256,512,1024]))
+#
+#
+#        ax1.legend(loc='best', fontsize=8.75)
+#        ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+##        ax1.grid(True,which="major",axis='y',linewidth=0.5,color=lighten_color('grey', 0.25))
+#        
+#        ax2 = ax1.twiny()
+#        ax2.set_xscale("log")
+#        ax2.set_yscale("log")
+#        ax2.errorbar(N_Array*NumOfIter, 2.*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax2.errorbar(N_Array*NumOfIter, 4*1e1*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+#        ax2.set_xticks(x2_ticks_labels)
+#        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+#        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+##        ax2.set_axisbelow(True)
+##        ax2.grid(True,which="both",axis='x')
+#
+##        ax2.text(100, 20, r'$\cos(2 \pi t) \exp(-t)$')#, fontdict=font)    
+#
+#        fig.tight_layout()
+#    #    plt.show()
+#        plt.savefig('results/{}/emprVar_{}mcmc.eps'.format(Case, NumOfSim), format='eps')
+
+
+
+#
+#        # HEART
+#        fig, ax1 = plt.subplots()
+#        fig.tight_layout()
+#
+#        ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
+#                    markersize=3, label = 'AIS-MP-QMCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkblue')#color = '0.25')
+#        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'AIS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkred')#color = '0.25')
+#        ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
+#                    markersize=3, label = 'M-H SmMALA',elinewidth = 1, capsize = 3, \
+#                    color='darkorange')#color = '0.25')           
+#        ax1.errorbar(N_Array, mh_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_estim_var_trace), fmt=':o', \
+#                    markersize=3, label = 'M-H',elinewidth = 1, capsize = 3, \
+#                    color='darkgreen')#color = '0.25')
+#        ax1.text(N_Array[-2], QMC_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
+#        ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
+#  
+#        ax1.errorbar(N_Array, 3*1e2*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax1.errorbar(N_Array, 7*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+#    
+#        # Make the y-axis label, ticks and tick labels match the line color.
+#        ax1.set_ylabel(r'Variance', color='k')
+##        ax1.tick_params('y', colors='k')
+#        ax1.set_xscale("log")
+#        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+##        x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+##        ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100] 
+#        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+#        
+##        ax1.tick_params(axis='x',reset=False,which='x')#,length=8,width=2)
+#        ax1.xaxis.set_minor_locator(plt.NullLocator()) #plt.FixedLocator([4,8,16,32,64,128,256,512,1024]))
+#
+#
+#        ax1.legend(loc='best', fontsize=8.75)
+#        ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+##        ax1.grid(True,which="major",axis='y',linewidth=0.5,color=lighten_color('grey', 0.25))
+#        
+#        ax2 = ax1.twiny()
+#        ax2.set_xscale("log")
+#        ax2.set_yscale("log")
+#        ax2.errorbar(N_Array*NumOfIter, 3.*1e2*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax2.errorbar(N_Array*NumOfIter, 7*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+#        ax2.set_xticks(x2_ticks_labels)
+#        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+#        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+##        ax2.set_axisbelow(True)
+##        ax2.grid(True,which="both",axis='x')
+#
+##        ax2.text(100, 20, r'$\cos(2 \pi t) \exp(-t)$')#, fontdict=font)    
+#
+#        fig.tight_layout()
+#    #    plt.show()
+#        plt.savefig('results/{}/emprVar_{}mcmc.eps'.format(Case, NumOfSim), format='eps')
+#
+
+
+#
+#        # AUSTRALIAN
+#        fig, ax1 = plt.subplots()
+#        fig.tight_layout()
+#
+#        ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
+#                    markersize=3, label = 'AIS-MP-QMCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkblue')#color = '0.25')
+#        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'AIS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkred')#color = '0.25')
+#        ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
+#                    markersize=3, label = 'M-H SmMALA',elinewidth = 1, capsize = 3, \
+#                    color='darkorange')#color = '0.25')           
+#        ax1.errorbar(N_Array, mh_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_estim_var_trace), fmt=':o', \
+#                    markersize=3, label = 'M-H',elinewidth = 1, capsize = 3, \
+#                    color='darkgreen')#color = '0.25')
+#        ax1.text(N_Array[-2], QMC_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % QMC_EmpiricalVarSlope))    
+#        ax1.text(N_Array[-2], PSR_EstimAverageVarTrace[-2], 
+#                 r'${}$'.format("%.2f" % PSR_EmpiricalVarSlope))
+#  
+#        ax1.errorbar(N_Array, 1*1e2*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax1.errorbar(N_Array, 6*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+#    
+#        # Make the y-axis label, ticks and tick labels match the line color.
+#        ax1.set_ylabel(r'Variance', color='k')
+##        ax1.tick_params('y', colors='k')
+#        ax1.set_xscale("log")
+#        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+##        x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+##        ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100] 
+#        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+#        
+##        ax1.tick_params(axis='x',reset=False,which='x')#,length=8,width=2)
+#        ax1.xaxis.set_minor_locator(plt.NullLocator()) #plt.FixedLocator([4,8,16,32,64,128,256,512,1024]))
+#
+#
+#        ax1.legend(loc='best', fontsize=8.75)
+#        ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+##        ax1.grid(True,which="major",axis='y',linewidth=0.5,color=lighten_color('grey', 0.25))
+#        
+#        ax2 = ax1.twiny()
+#        ax2.set_xscale("log")
+#        ax2.set_yscale("log")
+#        ax2.errorbar(N_Array*NumOfIter, 1*1e2*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+#        ax2.errorbar(N_Array*NumOfIter, 6*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+#                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+#        ax2.set_xticks(x2_ticks_labels)
+#        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+#        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+##        ax2.set_axisbelow(True)
+##        ax2.grid(True,which="both",axis='x')
+#
+##        ax2.text(100, 20, r'$\cos(2 \pi t) \exp(-t)$')#, fontdict=font)    
+#
+#        fig.tight_layout()
+#    #    plt.show()
+#        plt.savefig('results/{}/emprVar_{}mcmc.eps'.format(Case, NumOfSim), format='eps')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#        
+#   
+#            
+#        
+#        ## IS plots
+#        
+#        fig, ax1 = plt.subplots()
+#        fig.tight_layout()
+#    
+#        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'Ad. IS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkred')#color = '0.25')
+#        ax1.errorbar(N_Array, IS_EstimAverageVarTrace, \
+#                    yerr=3*np.sqrt(IS_VarEstimBatchVarTrace), fmt='--o', \
+#                    markersize=3, label = 'IS-MP-MCMC',elinewidth = 1, capsize = 3, \
+#                    color='darkblue')  
+#        ax1.errorbar(N_Array, mh_SmMALA_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_SmMALA_estim_var_trace), fmt='-.o', \
+#                    markersize=3, label = 'M-H SmMALA',elinewidth = 1, capsize = 3, \
+#                    color='darkorange')#color = '0.25')           
+#        ax1.errorbar(N_Array, mh_estimVar_Vec_e_trace, \
+#                    yerr=3*np.sqrt(mh_estim_var_trace), fmt=':o', \
+#                    markersize=3, label = 'M-H',elinewidth = 1, capsize = 3, \
+#                    color='darkgreen')#color = '0.25')
+#
+# 
+#        ax1.errorbar(N_Array, 8*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+##        ax1.errorbar(N_Array, 1*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+##                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+#    
+#        # Make the y-axis label, ticks and tick labels match the line color.
+#        ax1.set_ylabel(r'Variance', color='k')
+##        ax1.tick_params('y', colors='k')
+#        ax1.set_xscale("log")
+#        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+##        x1_ticks_labels = [5,10,25,50,100,250,500,1000] #[5,10,20,50,100] 
+##        ax1.set_xticks(np.array([5,10,25,50,100,250,500,1000])) # #[5,10,20,50,100] 
+#        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+#        
+##        ax1.tick_params(axis='x',reset=False,which='x')#,length=8,width=2)
+#        ax1.xaxis.set_minor_locator(plt.NullLocator()) #plt.FixedLocator([4,8,16,32,64,128,256,512,1024]))
+#
+#
+#        ax1.legend(loc='best', fontsize=8.75)
+#        ax1.grid(True,which="major",axis='both',linewidth=0.75,color=lighten_color('grey', 0.25))
+##        ax1.grid(True,which="major",axis='y',linewidth=0.5,color=lighten_color('grey', 0.25))
+#        
+#        ax2 = ax1.twiny()
+#        ax2.set_xscale("log")
+#        ax2.set_yscale("log")
+#        ax2.errorbar(N_Array*NumOfIter, 8.*1e1*(N_Array*NumOfIter)**(-1.), fmt='--', \
+#                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+##        ax2.errorbar(N_Array*NumOfIter, 1*1e3*(N_Array*NumOfIter)**(-2.), fmt=':', \
+##                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+#        x2_ticks_labels = np.array([2000, 10000, 100000, 500000])
+#        ax2.set_xticks(x2_ticks_labels)
+#        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+#        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+##        ax2.set_axisbelow(True)
+##        ax2.grid(True,which="both",axis='x')
+#
+##        ax2.text(100, 20, r'$\cos(2 \pi t) \exp(-t)$')#, fontdict=font)    
+#
+#        fig.tight_layout()
+#    #    plt.show()
+#        plt.savefig('results/{}/emprVar_{}mcmc2.eps'.format(Case, NumOfSim), format='eps')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # Fancier plots
+        fig, ax1 = plt.subplots()
+        fig.tight_layout()
+    
+        ax1.errorbar(N_Array, QMC_EstimAverageVarTrace, \
+                    yerr=3*np.sqrt(QMC_VarEstimBatchVarTrace), fmt='-o', \
+                    markersize=3, label = 'QMC',elinewidth = 1, capsize = 3, \
+                    color='darkblue')    
+        ax1.errorbar(N_Array, PSR_EstimAverageVarTrace, \
+                    yerr=3*np.sqrt(PSR_VarEstimBatchVarTrace), fmt='--o', \
+                    markersize=3, label = 'PSR',elinewidth = 1, capsize = 3, \
+                    color='darkred')  
+    
+    
+        ax1.errorbar(N_Array, 1*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
+                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+        ax1.errorbar(N_Array, 0.5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+        ax1.set_xlabel('Number of Proposals $N$')# \n (Step Size = %1.3f)' %StepSize)
+    
+        # Make the y-axis label, ticks and tick labels match the line color.
+        ax1.set_ylabel(r'Variance', color='k')
+        ax1.tick_params('y', colors='k')
+        ax1.set_xscale("log")
+        ax1.set_yscale("log")
+#        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024]
+#        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024]))
+        x1_ticks_labels = [4,8,16,32,64,128,256,512,1024] #[5,10,20,50,100] 
+        ax1.set_xticks(np.array([4,8,16,32,64,128,256,512,1024])) # #[5,10,20,50,100] 
+        ax1.set_xticklabels(x1_ticks_labels, fontsize=11)
+        ax1.legend(loc='best', fontsize=11)
+        ax1.grid(True,which="both")
         
+        ax2 = ax1.twiny()
+        ax2.set_xscale("log")
+        ax2.set_yscale("log")
+        ax2.errorbar(N_Array*NumOfIter, 1.*1e0*(N_Array*NumOfIter)**(-1.), fmt='--', \
+                    label = r'$\sim n^{-1}$', elinewidth = 1, color='0.5')
+        ax2.errorbar(N_Array*NumOfIter, 0.5*1e2*(N_Array*NumOfIter)**(-2.), fmt=':', \
+                    label = r'$\sim n^{-2}$', elinewidth = 1, color='0.5')
+        x2_ticks_labels = np.array([16000, 100000, 500000, 2000000])
+        ax2.set_xticks(x2_ticks_labels)
+        ax2.set_xticklabels(x2_ticks_labels, fontsize=11)
+        ax2.set_xlabel('Total Number of Samples $n$ \n (%i Iterations)' %NumOfIter, color='k')
+    
+        fig.tight_layout()
+    #    plt.show()
+        plt.savefig('results/{}/emprVar_{}mcmc.eps'.format(Case, NumOfSim), format='eps')
+    

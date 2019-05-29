@@ -58,9 +58,9 @@ class BayesianLogReg:
         #############
         
         Data        = DataLoad(Case)
-        d           = Data.GetDimension()
-        XX          = Data.GetDesignMatrix()
-        t           = Data.GetResponses()
+        d           = Data.getDimension()
+        XX          = Data.getDesignMatrix()
+        t           = Data.getResponses()
 
         
         ##################################
@@ -181,7 +181,11 @@ class BayesianLogReg:
     
             # Sample N new states 
             PstatesSum = np.cumsum(Pstates)
-            Is = np.searchsorted(PstatesSum, U[:,d+1:].flatten())
+            Is = np.searchsorted(PstatesSum, U[:N-1,d+1:].flatten())
+            PstatesSubSamSum = np.cumsum(np.bincount(Is)/(N-1))
+            I = np.searchsorted(PstatesSubSamSum, U[N-1,d+1:])
+            
+            # Add new samples to list
             xValsNew = Proposals[Is]
             self.xVals.append(xValsNew.copy())
     
@@ -190,11 +194,11 @@ class BayesianLogReg:
             self.AcceptVals.append(AcceptValsNew)
     
             # Update current state
-            I = Is[-1]
+#            I = Is[-1]
             xI = Proposals[I,:]
 
     
-    def GetSamples(self, BurnIn=0):
+    def getSamples(self, BurnIn=0):
         
         """
         Compute samples from posterior from MP-QMCMC
@@ -215,7 +219,7 @@ class BayesianLogReg:
         return Samples
        
         
-    def GetAcceptRate(self, BurnIn=0):
+    def getAcceptRate(self, BurnIn=0):
         
         """
         Compute acceptance rate of MP-QMCMC
@@ -237,7 +241,7 @@ class BayesianLogReg:
         return AcceptRate
 
      
-    def GetIS_MeanEstimate(self, N, BurnIn=0):
+    def getIS_MeanEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling mean estimate
@@ -254,7 +258,7 @@ class BayesianLogReg:
         return WeightedMean
 
 
-    def GetIS_CovEstimate(self, N, BurnIn=0):
+    def getIS_CovEstimate(self, N, BurnIn=0):
         
         """
         Compute importance sampling covariance estimate
@@ -270,7 +274,7 @@ class BayesianLogReg:
         return WeightedCov
 
 
-    def GetWeightedSum(self, N, BurnIn=0):
+    def getWeightedSum(self, N, BurnIn=0):
         
         """
         Compute samples from posterior from MP-QMCMC
@@ -291,7 +295,7 @@ class BayesianLogReg:
         return WeightedSum
     
       
-    def GetMarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
+    def getMarginalHistogram(self, Index=0, BarNum=100, BurnIn=0):
         
         """
         Plot histogram of marginal distribution for posterior samples using 
@@ -311,7 +315,7 @@ class BayesianLogReg:
 
         Fig = plt.figure()
         SubPlot = Fig.add_subplot(111)
-        SubPlot.hist(self.GetSamples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
+        SubPlot.hist(self.getSamples(BurnIn)[:,Index], BarNum, label = "PDF Histogram", density = True)
         
         return Fig
 

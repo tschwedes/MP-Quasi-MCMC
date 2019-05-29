@@ -13,7 +13,14 @@ import numpy as np
 class DataLoad:
 
     def __init__(self, case):
-    
+
+        """
+        Inputs:
+        -------   
+        Case            - string
+                        determines the data used
+        """                
+        
         if case == 'ripley':        
     
             # Two hyperparameters of model
@@ -144,14 +151,14 @@ class DataLoad:
             raise ValueError("case must be chosen from one of the following: 'ripley',\
                              'pima', 'heart', 'australian', 'german'")
           
-    def GetDimension(self):
+    def getDimension(self):
         return self.d
         
-    def GetDesignMatrix(self):
+    def getDesignMatrix(self):
         return self.XX
     
-    def GetNumOfSamples(self):
+    def getNumOfSamples(self):
         return self.m        
 
-    def GetResponses(self):
+    def getResponses(self):
         return self.t       
